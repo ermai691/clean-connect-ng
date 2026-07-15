@@ -11,6 +11,7 @@ export const Route = createFileRoute("/")({
 type Service = {
   id: string;
   name: string;
+  category: string;
   icon: string;
   image: string;
   desc: string;
