@@ -11,6 +11,7 @@ export const Route = createFileRoute("/")({
 type Service = {
   id: string;
   name: string;
+  category: string;
   icon: string;
   image: string;
   desc: string;
@@ -26,6 +27,7 @@ const services: Service[] = [
   {
     id: "house",
     name: "House Cleaning",
+    category: "Home Cleaning",
     icon: "fa-house",
     image:
       "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=70",
@@ -40,6 +42,7 @@ const services: Service[] = [
   {
     id: "deep",
     name: "Deep Cleaning",
+    category: "Home Cleaning",
     icon: "fa-spray-can-sparkles",
     image:
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=70",
@@ -54,6 +57,7 @@ const services: Service[] = [
   {
     id: "movein",
     name: "Move-in Cleaning",
+    category: "Home Cleaning",
     icon: "fa-truck-ramp-box",
     image:
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70",
@@ -68,6 +72,7 @@ const services: Service[] = [
   {
     id: "moveout",
     name: "Move-out Cleaning",
+    category: "Home Cleaning",
     icon: "fa-boxes-packing",
     image:
       "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=70",
@@ -82,6 +87,7 @@ const services: Service[] = [
   {
     id: "office",
     name: "Office Cleaning",
+    category: "Commercial",
     icon: "fa-building",
     image:
       "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=70",
@@ -96,6 +102,7 @@ const services: Service[] = [
   {
     id: "postcon",
     name: "Post Construction",
+    category: "Specialty",
     icon: "fa-helmet-safety",
     image:
       "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=70",
@@ -110,6 +117,7 @@ const services: Service[] = [
   {
     id: "laundry",
     name: "Laundry & Ironing",
+    category: "Laundry",
     icon: "fa-shirt",
     image:
       "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1200&q=70",
@@ -124,6 +132,7 @@ const services: Service[] = [
   {
     id: "sofa",
     name: "Sofa Cleaning",
+    category: "Home Cleaning",
     icon: "fa-couch",
     image:
       "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1200&q=70",
@@ -138,6 +147,7 @@ const services: Service[] = [
   {
     id: "fumigation",
     name: "Fumigation & Pest",
+    category: "Specialty",
     icon: "fa-bug-slash",
     image:
       "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=1200&q=70",
@@ -152,6 +162,7 @@ const services: Service[] = [
   {
     id: "airbnb",
     name: "Airbnb Cleaning",
+    category: "Home Cleaning",
     icon: "fa-key",
     image:
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=70",
@@ -166,6 +177,7 @@ const services: Service[] = [
   {
     id: "event",
     name: "Event Cleanup",
+    category: "Specialty",
     icon: "fa-champagne-glasses",
     image:
       "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=70",
@@ -180,6 +192,7 @@ const services: Service[] = [
   {
     id: "commercial",
     name: "Commercial Cleaning",
+    category: "Commercial",
     icon: "fa-shop",
     image:
       "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1200&q=70",
@@ -194,6 +207,7 @@ const services: Service[] = [
   {
     id: "school",
     name: "School Cleaning",
+    category: "Commercial",
     icon: "fa-school",
     image:
       "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=70",
@@ -208,6 +222,7 @@ const services: Service[] = [
   {
     id: "hospital",
     name: "Hospital Cleaning",
+    category: "Commercial",
     icon: "fa-hospital",
     image:
       "https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=1200&q=70",
@@ -222,6 +237,7 @@ const services: Service[] = [
   {
     id: "restaurant",
     name: "Restaurant Cleaning",
+    category: "Commercial",
     icon: "fa-burger",
     image:
       "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=70",
@@ -236,6 +252,7 @@ const services: Service[] = [
   {
     id: "warehouse",
     name: "Warehouse Cleaning",
+    category: "Commercial",
     icon: "fa-warehouse",
     image:
       "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1200&q=70",
@@ -254,10 +271,25 @@ function ngn(n: number) {
 }
 
 // ---------- Home ----------
+const categories = ["All", "Home Cleaning", "Commercial", "Laundry", "Specialty"];
+
 function Home() {
   const [modalService, setModalService] = useState<Service | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
   const navigate = useNavigate();
   const user = useAuthUser();
+
+  const filteredServices = services.filter((s) => {
+    const matchesCategory = activeCategory === "All" || s.category === activeCategory;
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !q ||
+      s.name.toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
 
   // Reveal on scroll
   useEffect(() => {
@@ -372,43 +404,104 @@ function Home() {
           <p className="section-sub reveal">
             Premium cleaning and laundry services delivered by vetted professionals across Abuja.
           </p>
-          <div className="services-grid">
-            {services.map((s) => (
-              <article className="service-card reveal" key={s.id}>
-                <div className="service-media">
-                  {/* Replace with your own service image */}
-                  <img src={s.image} alt={s.name} loading="lazy" />
-                  <span className="service-icon" aria-hidden>
-                    {/* Replace with your own Font Awesome icon */}
-                    <i className={`fas ${s.icon}`} />
-                  </span>
-                </div>
-                <div className="service-body">
-                  <h3>{s.name}</h3>
-                  <p className="desc">{s.desc}</p>
-                  <div className="service-meta">
-                    <div className="service-price">
-                      {ngn(s.price)} <span>starting</span>
-                    </div>
-                    <div className="service-rating">
-                      <i className="fas fa-star" /> {s.rating}
-                    </div>
-                  </div>
-                  <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
-                    <i className="far fa-clock" /> {s.duration}
-                  </div>
-                </div>
-                <div className="service-actions">
-                  <button className="btn btn-outline" onClick={() => openLearnMore(s)}>
-                    Learn More
-                  </button>
-                  <button className="btn btn-primary" onClick={() => handleBook(s)}>
-                    Book Now
-                  </button>
-                </div>
-              </article>
-            ))}
+
+          <div className="services-filter-bar reveal">
+            <div className="services-search">
+              <i className="fas fa-magnifying-glass" aria-hidden />
+              <input
+                type="text"
+                placeholder="Search cleaning or laundry services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search services"
+              />
+              {searchQuery && (
+                <button
+                  className="services-search-clear"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                >
+                  <i className="fas fa-xmark" />
+                </button>
+              )}
+            </div>
+            <div className="services-categories" role="group" aria-label="Filter by category">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  className={`category-chip ${activeCategory === cat ? "active" : ""}`}
+                  onClick={() => setActiveCategory(cat)}
+                  aria-pressed={activeCategory === cat}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="services-results reveal">
+            Showing {filteredServices.length} of {services.length} services
+            {activeCategory !== "All" && <span> in <strong>{activeCategory}</strong></span>}
+            {searchQuery && <span> matching "<strong>{searchQuery}</strong>"</span>}
+          </div>
+
+          {filteredServices.length > 0 ? (
+            <div className="services-grid">
+              {filteredServices.map((s) => (
+                <article className="service-card reveal" key={s.id}>
+                  <div className="service-media">
+                    {/* Replace with your own service image */}
+                    <img src={s.image} alt={s.name} loading="lazy" />
+                    <span className="service-icon" aria-hidden>
+                      {/* Replace with your own Font Awesome icon */}
+                      <i className={`fas ${s.icon}`} />
+                    </span>
+                    <span className="service-category-badge">{s.category}</span>
+                  </div>
+                  <div className="service-body">
+                    <h3>{s.name}</h3>
+                    <p className="desc">{s.desc}</p>
+                    <div className="service-meta">
+                      <div className="service-price">
+                        {ngn(s.price)} <span>starting</span>
+                      </div>
+                      <div className="service-rating">
+                        <i className="fas fa-star" /> {s.rating}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
+                      <i className="far fa-clock" /> {s.duration}
+                    </div>
+                  </div>
+                  <div className="service-actions">
+                    <button className="btn btn-outline" onClick={() => openLearnMore(s)}>
+                      Learn More
+                    </button>
+                    <button className="btn btn-primary" onClick={() => handleBook(s)}>
+                      Book Now
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="services-empty reveal">
+              <div className="services-empty-icon">
+                <i className="fas fa-search" />
+              </div>
+              <h3>No services found</h3>
+              <p>Try adjusting your search or selecting a different category.</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("All");
+                }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
