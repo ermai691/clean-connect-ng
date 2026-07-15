@@ -136,62 +136,6 @@ const services: Service[] = [
     included: ["Vacuum", "Stain treatment", "Shampoo", "Extraction", "Deodorize", "Fabric protect"],
   },
   {
-    id: "mattress",
-    name: "Mattress Cleaning",
-    icon: "fa-bed",
-    image:
-      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=70",
-    desc: "Kill dust mites and refresh your mattress hygienically.",
-    long: "Sanitizing mattress cleaning to remove allergens, dust mites, and odors.",
-    price: 18000,
-    duration: "1–2 Hours",
-    rating: 4.8,
-    reviews: 133,
-    included: ["Vacuum", "Sanitize", "Stain treatment", "UV treatment", "Deodorize", "Fabric protect"],
-  },
-  {
-    id: "windows",
-    name: "Window Cleaning",
-    icon: "fa-window-maximize",
-    image:
-      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=70",
-    desc: "Streak-free windows, inside and out.",
-    long: "Professional-grade window cleaning for homes and offices.",
-    price: 12000,
-    duration: "1–3 Hours",
-    rating: 4.7,
-    reviews: 91,
-    included: ["Glass detail", "Frames", "Sills", "Screens", "Tracks", "Streak-free finish"],
-  },
-  {
-    id: "kitchen",
-    name: "Kitchen Deep Clean",
-    icon: "fa-utensils",
-    image:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=70",
-    desc: "Degrease every surface — cabinets, oven, hood and more.",
-    long: "Full degrease and sanitize for busy kitchens.",
-    price: 22000,
-    duration: "3–4 Hours",
-    rating: 4.9,
-    reviews: 158,
-    included: ["Degrease", "Oven", "Range hood", "Cabinets", "Counters", "Sink & taps"],
-  },
-  {
-    id: "bathroom",
-    name: "Bathroom Deep Clean",
-    icon: "fa-bath",
-    image:
-      "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=70",
-    desc: "Sparkling tiles, grout, glass and fixtures.",
-    long: "Detailed sanitizing bathroom clean including grout and fixtures.",
-    price: 15000,
-    duration: "2–3 Hours",
-    rating: 4.9,
-    reviews: 176,
-    included: ["Grout scrub", "Tile shine", "Glass", "Fixtures", "Toilet", "Sanitize"],
-  },
-  {
     id: "fumigation",
     name: "Fumigation & Pest",
     icon: "fa-bug-slash",
@@ -303,18 +247,6 @@ const services: Service[] = [
     reviews: 18,
     included: ["Floor scrub", "Dust", "Racking", "Loading bays", "Restrooms", "Waste"],
   },
-];
-
-const ADDONS = [
-  { id: "fridge", label: "Inside Fridge", price: 3000 },
-  { id: "oven", label: "Inside Oven", price: 2500 },
-  { id: "bath", label: "Extra Bathroom", price: 2000 },
-  { id: "balcony", label: "Balcony", price: 1500 },
-  { id: "laundry", label: "Laundry", price: 5000 },
-  { id: "ironing", label: "Ironing", price: 2500 },
-  { id: "carpet", label: "Carpet", price: 6000 },
-  { id: "sofa", label: "Sofa", price: 7000 },
-  { id: "window", label: "Window Cleaning", price: 4000 },
 ];
 
 function ngn(n: number) {
