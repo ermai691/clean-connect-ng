@@ -421,7 +421,7 @@ function Home() {
           </p>
           <div className="steps">
             {[
-              { icon: "fa-list-check", t: "Pick a service", d: "Choose from 20+ cleaning and laundry services." },
+              { icon: "fa-list-check", t: "Pick a service", d: "Choose from 17+ cleaning and laundry services." },
               { icon: "fa-calendar-check", t: "Choose a time", d: "Same-day or scheduled — you're in control." },
               { icon: "fa-user-check", t: "Match with a pro", d: "Vetted, background-checked and insured." },
               { icon: "fa-sparkles", t: "Enjoy the sparkle", d: "Rate your pro. Satisfaction guaranteed." },
