@@ -271,10 +271,25 @@ function ngn(n: number) {
 }
 
 // ---------- Home ----------
+const categories = ["All", "Home Cleaning", "Commercial", "Laundry", "Specialty"];
+
 function Home() {
   const [modalService, setModalService] = useState<Service | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
   const navigate = useNavigate();
   const user = useAuthUser();
+
+  const filteredServices = services.filter((s) => {
+    const matchesCategory = activeCategory === "All" || s.category === activeCategory;
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !q ||
+      s.name.toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
 
   // Reveal on scroll
   useEffect(() => {
