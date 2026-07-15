@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav, Footer, useAuthUser } from "@/components/Nav";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -136,62 +136,6 @@ const services: Service[] = [
     included: ["Vacuum", "Stain treatment", "Shampoo", "Extraction", "Deodorize", "Fabric protect"],
   },
   {
-    id: "mattress",
-    name: "Mattress Cleaning",
-    icon: "fa-bed",
-    image:
-      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=70",
-    desc: "Kill dust mites and refresh your mattress hygienically.",
-    long: "Sanitizing mattress cleaning to remove allergens, dust mites, and odors.",
-    price: 18000,
-    duration: "1–2 Hours",
-    rating: 4.8,
-    reviews: 133,
-    included: ["Vacuum", "Sanitize", "Stain treatment", "UV treatment", "Deodorize", "Fabric protect"],
-  },
-  {
-    id: "windows",
-    name: "Window Cleaning",
-    icon: "fa-window-maximize",
-    image:
-      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=70",
-    desc: "Streak-free windows, inside and out.",
-    long: "Professional-grade window cleaning for homes and offices.",
-    price: 12000,
-    duration: "1–3 Hours",
-    rating: 4.7,
-    reviews: 91,
-    included: ["Glass detail", "Frames", "Sills", "Screens", "Tracks", "Streak-free finish"],
-  },
-  {
-    id: "kitchen",
-    name: "Kitchen Deep Clean",
-    icon: "fa-utensils",
-    image:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=70",
-    desc: "Degrease every surface — cabinets, oven, hood and more.",
-    long: "Full degrease and sanitize for busy kitchens.",
-    price: 22000,
-    duration: "3–4 Hours",
-    rating: 4.9,
-    reviews: 158,
-    included: ["Degrease", "Oven", "Range hood", "Cabinets", "Counters", "Sink & taps"],
-  },
-  {
-    id: "bathroom",
-    name: "Bathroom Deep Clean",
-    icon: "fa-bath",
-    image:
-      "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=70",
-    desc: "Sparkling tiles, grout, glass and fixtures.",
-    long: "Detailed sanitizing bathroom clean including grout and fixtures.",
-    price: 15000,
-    duration: "2–3 Hours",
-    rating: 4.9,
-    reviews: 176,
-    included: ["Grout scrub", "Tile shine", "Glass", "Fixtures", "Toilet", "Sanitize"],
-  },
-  {
     id: "fumigation",
     name: "Fumigation & Pest",
     icon: "fa-bug-slash",
@@ -305,18 +249,6 @@ const services: Service[] = [
   },
 ];
 
-const ADDONS = [
-  { id: "fridge", label: "Inside Fridge", price: 3000 },
-  { id: "oven", label: "Inside Oven", price: 2500 },
-  { id: "bath", label: "Extra Bathroom", price: 2000 },
-  { id: "balcony", label: "Balcony", price: 1500 },
-  { id: "laundry", label: "Laundry", price: 5000 },
-  { id: "ironing", label: "Ironing", price: 2500 },
-  { id: "carpet", label: "Carpet", price: 6000 },
-  { id: "sofa", label: "Sofa", price: 7000 },
-  { id: "window", label: "Window Cleaning", price: 4000 },
-];
-
 function ngn(n: number) {
   return "₦" + n.toLocaleString("en-NG");
 }
@@ -324,7 +256,6 @@ function ngn(n: number) {
 // ---------- Home ----------
 function Home() {
   const [modalService, setModalService] = useState<Service | null>(null);
-  const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const user = useAuthUser();
 
@@ -354,7 +285,6 @@ function Home() {
   }, [modalService]);
 
   const openLearnMore = (s: Service) => {
-    setSelectedAddons({});
     setModalService(s);
   };
 
@@ -366,14 +296,6 @@ function Home() {
     navigate({ to: "/booking", search: { service: s.id } });
   };
 
-  const modalTotal = useMemo(() => {
-    if (!modalService) return 0;
-    const addons = ADDONS.filter((a) => selectedAddons[a.id]).reduce(
-      (sum, a) => sum + a.price,
-      0
-    );
-    return modalService.price + addons;
-  }, [modalService, selectedAddons]);
 
   return (
     <>
@@ -499,7 +421,7 @@ function Home() {
           </p>
           <div className="steps">
             {[
-              { icon: "fa-list-check", t: "Pick a service", d: "Choose from 20+ cleaning and laundry services." },
+              { icon: "fa-list-check", t: "Pick a service", d: "Choose from 16+ cleaning and laundry services." },
               { icon: "fa-calendar-check", t: "Choose a time", d: "Same-day or scheduled — you're in control." },
               { icon: "fa-user-check", t: "Match with a pro", d: "Vetted, background-checked and insured." },
               { icon: "fa-sparkles", t: "Enjoy the sparkle", d: "Rate your pro. Satisfaction guaranteed." },
@@ -708,34 +630,6 @@ function Home() {
                     </li>
                   ))}
                 </ul>
-
-                <h4>
-                  <i className="fas fa-plus" /> Optional Add-ons
-                </h4>
-                <div className="addons">
-                  {ADDONS.map((a) => {
-                    const checked = !!selectedAddons[a.id];
-                    return (
-                      <label key={a.id} className={`addon ${checked ? "checked" : ""}`}>
-                        <span>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() =>
-                              setSelectedAddons((s) => ({ ...s, [a.id]: !s[a.id] }))
-                            }
-                          />
-                          <i
-                            className={`fas ${checked ? "fa-square-check" : "fa-square"}`}
-                            style={{ color: checked ? "var(--primary)" : "var(--muted-foreground)", marginRight: 8 }}
-                          />
-                          {a.label}
-                        </span>
-                        <span className="addon-price">+{ngn(a.price)}</span>
-                      </label>
-                    );
-                  })}
-                </div>
               </div>
 
               <div>
@@ -748,15 +642,9 @@ function Home() {
                     <span>Duration</span>
                     <span>{modalService.duration}</span>
                   </div>
-                  {ADDONS.filter((a) => selectedAddons[a.id]).map((a) => (
-                    <div className="summary-row" key={a.id}>
-                      <span>+ {a.label}</span>
-                      <span>{ngn(a.price)}</span>
-                    </div>
-                  ))}
                   <div className="summary-row total">
-                    <span>Estimated Total</span>
-                    <span>{ngn(modalTotal)}</span>
+                    <span>Fixed Price</span>
+                    <span>{ngn(modalService.price)}</span>
                   </div>
                 </div>
 
@@ -794,7 +682,7 @@ function Home() {
                   if (s) handleBook(s);
                 }}
               >
-                <i className="fas fa-calendar-check" /> Book Now — {ngn(modalTotal)}
+                <i className="fas fa-calendar-check" /> Book Now — {ngn(modalService.price)}
               </button>
               <a
                 href="https://wa.me/2348000000000"
