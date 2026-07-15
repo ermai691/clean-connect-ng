@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav, Footer, useAuthUser } from "@/components/Nav";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -256,7 +256,6 @@ function ngn(n: number) {
 // ---------- Home ----------
 function Home() {
   const [modalService, setModalService] = useState<Service | null>(null);
-  const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const user = useAuthUser();
 
@@ -286,7 +285,6 @@ function Home() {
   }, [modalService]);
 
   const openLearnMore = (s: Service) => {
-    setSelectedAddons({});
     setModalService(s);
   };
 
@@ -298,14 +296,6 @@ function Home() {
     navigate({ to: "/booking", search: { service: s.id } });
   };
 
-  const modalTotal = useMemo(() => {
-    if (!modalService) return 0;
-    const addons = ADDONS.filter((a) => selectedAddons[a.id]).reduce(
-      (sum, a) => sum + a.price,
-      0
-    );
-    return modalService.price + addons;
-  }, [modalService, selectedAddons]);
 
   return (
     <>
@@ -640,34 +630,6 @@ function Home() {
                     </li>
                   ))}
                 </ul>
-
-                <h4>
-                  <i className="fas fa-plus" /> Optional Add-ons
-                </h4>
-                <div className="addons">
-                  {ADDONS.map((a) => {
-                    const checked = !!selectedAddons[a.id];
-                    return (
-                      <label key={a.id} className={`addon ${checked ? "checked" : ""}`}>
-                        <span>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() =>
-                              setSelectedAddons((s) => ({ ...s, [a.id]: !s[a.id] }))
-                            }
-                          />
-                          <i
-                            className={`fas ${checked ? "fa-square-check" : "fa-square"}`}
-                            style={{ color: checked ? "var(--primary)" : "var(--muted-foreground)", marginRight: 8 }}
-                          />
-                          {a.label}
-                        </span>
-                        <span className="addon-price">+{ngn(a.price)}</span>
-                      </label>
-                    );
-                  })}
-                </div>
               </div>
 
               <div>
@@ -680,15 +642,9 @@ function Home() {
                     <span>Duration</span>
                     <span>{modalService.duration}</span>
                   </div>
-                  {ADDONS.filter((a) => selectedAddons[a.id]).map((a) => (
-                    <div className="summary-row" key={a.id}>
-                      <span>+ {a.label}</span>
-                      <span>{ngn(a.price)}</span>
-                    </div>
-                  ))}
                   <div className="summary-row total">
-                    <span>Estimated Total</span>
-                    <span>{ngn(modalTotal)}</span>
+                    <span>Fixed Price</span>
+                    <span>{ngn(modalService.price)}</span>
                   </div>
                 </div>
 
@@ -726,7 +682,7 @@ function Home() {
                   if (s) handleBook(s);
                 }}
               >
-                <i className="fas fa-calendar-check" /> Book Now — {ngn(modalTotal)}
+                <i className="fas fa-calendar-check" /> Book Now — {ngn(modalService.price)}
               </button>
               <a
                 href="https://wa.me/2348000000000"
