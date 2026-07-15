@@ -404,43 +404,104 @@ function Home() {
           <p className="section-sub reveal">
             Premium cleaning and laundry services delivered by vetted professionals across Abuja.
           </p>
-          <div className="services-grid">
-            {services.map((s) => (
-              <article className="service-card reveal" key={s.id}>
-                <div className="service-media">
-                  {/* Replace with your own service image */}
-                  <img src={s.image} alt={s.name} loading="lazy" />
-                  <span className="service-icon" aria-hidden>
-                    {/* Replace with your own Font Awesome icon */}
-                    <i className={`fas ${s.icon}`} />
-                  </span>
-                </div>
-                <div className="service-body">
-                  <h3>{s.name}</h3>
-                  <p className="desc">{s.desc}</p>
-                  <div className="service-meta">
-                    <div className="service-price">
-                      {ngn(s.price)} <span>starting</span>
-                    </div>
-                    <div className="service-rating">
-                      <i className="fas fa-star" /> {s.rating}
-                    </div>
-                  </div>
-                  <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
-                    <i className="far fa-clock" /> {s.duration}
-                  </div>
-                </div>
-                <div className="service-actions">
-                  <button className="btn btn-outline" onClick={() => openLearnMore(s)}>
-                    Learn More
-                  </button>
-                  <button className="btn btn-primary" onClick={() => handleBook(s)}>
-                    Book Now
-                  </button>
-                </div>
-              </article>
-            ))}
+
+          <div className="services-filter-bar reveal">
+            <div className="services-search">
+              <i className="fas fa-magnifying-glass" aria-hidden />
+              <input
+                type="text"
+                placeholder="Search cleaning or laundry services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search services"
+              />
+              {searchQuery && (
+                <button
+                  className="services-search-clear"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                >
+                  <i className="fas fa-xmark" />
+                </button>
+              )}
+            </div>
+            <div className="services-categories" role="group" aria-label="Filter by category">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  className={`category-chip ${activeCategory === cat ? "active" : ""}`}
+                  onClick={() => setActiveCategory(cat)}
+                  aria-pressed={activeCategory === cat}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="services-results reveal">
+            Showing {filteredServices.length} of {services.length} services
+            {activeCategory !== "All" && <span> in <strong>{activeCategory}</strong></span>}
+            {searchQuery && <span> matching "<strong>{searchQuery}</strong>"</span>}
+          </div>
+
+          {filteredServices.length > 0 ? (
+            <div className="services-grid">
+              {filteredServices.map((s) => (
+                <article className="service-card reveal" key={s.id}>
+                  <div className="service-media">
+                    {/* Replace with your own service image */}
+                    <img src={s.image} alt={s.name} loading="lazy" />
+                    <span className="service-icon" aria-hidden>
+                      {/* Replace with your own Font Awesome icon */}
+                      <i className={`fas ${s.icon}`} />
+                    </span>
+                    <span className="service-category-badge">{s.category}</span>
+                  </div>
+                  <div className="service-body">
+                    <h3>{s.name}</h3>
+                    <p className="desc">{s.desc}</p>
+                    <div className="service-meta">
+                      <div className="service-price">
+                        {ngn(s.price)} <span>starting</span>
+                      </div>
+                      <div className="service-rating">
+                        <i className="fas fa-star" /> {s.rating}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
+                      <i className="far fa-clock" /> {s.duration}
+                    </div>
+                  </div>
+                  <div className="service-actions">
+                    <button className="btn btn-outline" onClick={() => openLearnMore(s)}>
+                      Learn More
+                    </button>
+                    <button className="btn btn-primary" onClick={() => handleBook(s)}>
+                      Book Now
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="services-empty reveal">
+              <div className="services-empty-icon">
+                <i className="fas fa-search" />
+              </div>
+              <h3>No services found</h3>
+              <p>Try adjusting your search or selecting a different category.</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("All");
+                }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
