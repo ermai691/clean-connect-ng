@@ -370,7 +370,7 @@ function ProviderRegistration() {
    ========================================================= */
 
 function Field({ label, error, children, hint }: {
-  label: string; error?: string; children: React.ReactNode; hint?: string;
+  label: string; error?: string; children: ReactNode; hint?: string;
 }) {
   return (
     <div className="pv-field">
@@ -585,7 +585,7 @@ function Step5({ form, set, errors }: any) {
 }
 
 function Step6({ form, goTo }: { form: FormState; goTo: (n: number) => void }) {
-  const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
+  const Row = ({ k, v }: { k: string; v: ReactNode }) => (
     <div className="pv-review-row"><span>{k}</span><strong>{v || <em>—</em>}</strong></div>
   );
   return (
@@ -634,7 +634,7 @@ function StepHeader({ n, title, desc }: { n: number; title: string; desc: string
   );
 }
 
-function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
+function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () => void; children: ReactNode }) {
   return (
     <div className="pv-review-block">
       <div className="pv-review-head">
