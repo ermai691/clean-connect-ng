@@ -214,7 +214,7 @@ export function Footer() {
             <ul>
               <li><a href="/#about">About</a></li>
               <li><a href="/#how">How It Works</a></li>
-              <li><a href="/#providers">Become a Provider</a></li>
+              <li><Link to="/become-provider">Become a Provider</Link></li>
               <li><a href="#">Careers</a></li>
             </ul>
           </div>
