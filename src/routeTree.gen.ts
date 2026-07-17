@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProviderRouteImport } from './routes/provider'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as BookingRouteImport } from './routes/booking'
 import { Route as BecomeProviderRouteImport } from './routes/become-provider'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -36,6 +37,11 @@ const LoginRoute = LoginRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerRoute = CustomerRouteImport.update({
+  id: '/customer',
+  path: '/customer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingRoute = BookingRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
+  '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
+  '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
+  '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/become-provider'
     | '/booking'
+    | '/customer'
     | '/dashboard'
     | '/login'
     | '/provider'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/become-provider'
     | '/booking'
+    | '/customer'
     | '/dashboard'
     | '/login'
     | '/provider'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/become-provider'
     | '/booking'
+    | '/customer'
     | '/dashboard'
     | '/login'
     | '/provider'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BecomeProviderRoute: typeof BecomeProviderRoute
   BookingRoute: typeof BookingRoute
+  CustomerRoute: typeof CustomerRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   ProviderRoute: typeof ProviderRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer': {
+      id: '/customer'
+      path: '/customer'
+      fullPath: '/customer'
+      preLoaderRoute: typeof CustomerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BecomeProviderRoute: BecomeProviderRoute,
   BookingRoute: BookingRoute,
+  CustomerRoute: CustomerRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   ProviderRoute: ProviderRoute,
