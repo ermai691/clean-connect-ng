@@ -39,22 +39,22 @@ export function Nav() {
   const links = (
     <>
       <Link to="/" className="nav-link" onClick={() => setOpen(false)}>
-        Home
+        <i className="fas fa-house" /> Home
       </Link>
       <a href="/#services" className="nav-link" onClick={() => setOpen(false)}>
-        Services
+        <i className="fas fa-broom" /> Services
       </a>
       <a href="/#how" className="nav-link" onClick={() => setOpen(false)}>
-        How It Works
+        <i className="fas fa-list-check" /> How It Works
       </a>
       <a href="/#providers" className="nav-link" onClick={() => setOpen(false)}>
-        Providers
+        <i className="fas fa-user-tie" /> Providers
       </a>
       <a href="/#about" className="nav-link" onClick={() => setOpen(false)}>
-        About
+        <i className="fas fa-circle-info" /> About
       </a>
       <a href="/#contact" className="nav-link" onClick={() => setOpen(false)}>
-        Contact
+        <i className="fas fa-envelope" /> Contact
       </a>
     </>
   );
