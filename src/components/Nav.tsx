@@ -364,17 +364,8 @@ export function Footer() {
               </ul>
             </div>
             <div>
-              <h5>Project</h5>
+              <h5>Support</h5>
               <ul>
-                <li>
-                  <button
-                    className="footer-link-button"
-                    onClick={() => setShowDownload(true)}
-                    aria-label="Download codebase"
-                  >
-                    <i className="fas fa-download" /> Download Codebase
-                  </button>
-                </li>
                 <li><a href="#">Help Center</a></li>
                 <li><a href="#">Contact Us</a></li>
                 <li><a href="#">Privacy Policy</a></li>
