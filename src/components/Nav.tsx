@@ -321,7 +321,6 @@ export function Nav() {
 }
 
 export function Footer() {
-  const [showDownload, setShowDownload] = useState(false);
   return (
     <>
       <footer id="contact">
