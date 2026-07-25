@@ -377,7 +377,6 @@ export function Footer() {
           </div>
         </div>
       </footer>
-      <DownloadCodebaseModal open={showDownload} onClose={() => setShowDownload(false)} />
     </>
   );
 }
