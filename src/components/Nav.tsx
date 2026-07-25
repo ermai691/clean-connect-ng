@@ -321,60 +321,73 @@ export function Nav() {
 }
 
 export function Footer() {
+  const [showDownload, setShowDownload] = useState(false);
   return (
-    <footer id="contact">
-      <div className="container-x">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <span className="brand" style={{ color: "#fff" }}>
-              <span className="brand-mark">
-                <i className="fas fa-broom" />
+    <>
+      <footer id="contact">
+        <div className="container-x">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <span className="brand" style={{ color: "#fff" }}>
+                <span className="brand-mark">
+                  <i className="fas fa-broom" />
+                </span>
+                CleanConnect
               </span>
-              CleanConnect
-            </span>
-            <p>
-              Verified cleaning and laundry professionals, on-demand across Abuja.
-              Book in minutes — relax while we handle the rest.
-            </p>
-            <div className="socials">
-              <a href="#" aria-label="Instagram"><i className="fab fa-instagram" /></a>
-              <a href="#" aria-label="Twitter"><i className="fab fa-x-twitter" /></a>
-              <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f" /></a>
-              <a href="#" aria-label="WhatsApp"><i className="fab fa-whatsapp" /></a>
+              <p>
+                Verified cleaning and laundry professionals, on-demand across Abuja.
+                Book in minutes — relax while we handle the rest.
+              </p>
+              <div className="socials">
+                <a href="#" aria-label="Instagram"><i className="fab fa-instagram" /></a>
+                <a href="#" aria-label="Twitter"><i className="fab fa-x-twitter" /></a>
+                <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f" /></a>
+                <a href="#" aria-label="WhatsApp"><i className="fab fa-whatsapp" /></a>
+              </div>
+            </div>
+            <div>
+              <h5>Company</h5>
+              <ul>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#how">How It Works</a></li>
+                <li><Link to="/become-provider">Earn with CleanConnect</Link></li>
+                <li><a href="#">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5>Services</h5>
+              <ul>
+                <li><a href="/#services">House Cleaning</a></li>
+                <li><a href="/#services">Office Cleaning</a></li>
+                <li><a href="/#services">Deep Cleaning</a></li>
+                <li><a href="/#services">Laundry & Ironing</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5>Project</h5>
+              <ul>
+                <li>
+                  <button
+                    className="footer-link-button"
+                    onClick={() => setShowDownload(true)}
+                    aria-label="Download codebase"
+                  >
+                    <i className="fas fa-download" /> Download Codebase
+                  </button>
+                </li>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+              </ul>
             </div>
           </div>
-          <div>
-            <h5>Company</h5>
-            <ul>
-              <li><a href="/#about">About</a></li>
-              <li><a href="/#how">How It Works</a></li>
-              <li><Link to="/become-provider">Earn with CleanConnect</Link></li>
-              <li><a href="#">Careers</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5>Services</h5>
-            <ul>
-              <li><a href="/#services">House Cleaning</a></li>
-              <li><a href="/#services">Office Cleaning</a></li>
-              <li><a href="/#services">Deep Cleaning</a></li>
-              <li><a href="/#services">Laundry & Ironing</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5>Support</h5>
-            <ul>
-              <li><a href="#">Help Center</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">Terms of Service</a></li>
-            </ul>
+          <div className="footer-bottom">
+            © {new Date().getFullYear()} CleanConnect. All rights reserved. Made with care in Abuja, Nigeria.
           </div>
         </div>
-        <div className="footer-bottom">
-          © {new Date().getFullYear()} CleanConnect. All rights reserved. Made with care in Abuja, Nigeria.
-        </div>
-      </div>
-    </footer>
+      </footer>
+      <DownloadCodebaseModal open={showDownload} onClose={() => setShowDownload(false)} />
+    </>
   );
 }
+
