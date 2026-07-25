@@ -2,138 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { getUser, logout, type User } from "@/lib/auth";
 
-function DownloadCodebaseModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  if (!open) return null;
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        background: "rgba(15,23,42,0.6)",
-        backdropFilter: "blur(6px)",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 560,
-          background: "#fff",
-          borderRadius: 22,
-          boxShadow: "0 24px 60px rgba(15,23,42,0.18)",
-          padding: "28px 24px 24px",
-          position: "relative",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          aria-label="Close"
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            width: 34,
-            height: 34,
-            borderRadius: "50%",
-            border: "none",
-            background: "#f1f5f9",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <i className="fas fa-times" style={{ color: "#475569" }} />
-        </button>
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 14px",
-            }}
-          >
-            <i className="fas fa-download" style={{ color: "#fff", fontSize: 24 }} />
-          </div>
-          <h3 style={{ fontSize: "1.35rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>
-            Get your project code
-          </h3>
-          <p style={{ color: "#64748b", margin: "8px 0 0", fontSize: "0.95rem" }}>
-            Choose the fastest way to download your CleanConnect codebase.
-          </p>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <a
-            href="https://lovable.dev/projects"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-primary"
-            style={{ justifyContent: "flex-start", gap: 14 }}
-          >
-            <i className="fas fa-code" />
-            <span style={{ flex: 1, textAlign: "left" }}>
-              <strong>Open Code Editor</strong>
-              <span style={{ display: "block", fontSize: "0.8rem", fontWeight: 400, opacity: 0.9 }}>
-                Then click "Download codebase" at the bottom of the file tree
-              </span>
-            </span>
-            <i className="fas fa-external-link-alt" style={{ opacity: 0.7 }} />
-          </a>
-
-          <a
-            href="https://docs.lovable.dev/user-guides/github"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-outline"
-            style={{ justifyContent: "flex-start", gap: 14 }}
-          >
-            <i className="fab fa-github" />
-            <span style={{ flex: 1, textAlign: "left" }}>
-              <strong>Connect GitHub</strong>
-              <span style={{ display: "block", fontSize: "0.8rem", fontWeight: 400, color: "#64748b" }}>
-                Sync your code and clone the repo anytime
-              </span>
-            </span>
-            <i className="fas fa-external-link-alt" style={{ opacity: 0.5 }} />
-          </a>
-
-          <a
-            href="https://docs.lovable.dev/features/cloud#database-export"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-outline"
-            style={{ justifyContent: "flex-start", gap: 14 }}
-          >
-            <i className="fas fa-database" />
-            <span style={{ flex: 1, textAlign: "left" }}>
-              <strong>Export Cloud Data</strong>
-              <span style={{ display: "block", fontSize: "0.8rem", fontWeight: 400, color: "#64748b" }}>
-                Download your database records only
-              </span>
-            </span>
-            <i className="fas fa-external-link-alt" style={{ opacity: 0.5 }} />
-          </a>
-        </div>
-
-        <p style={{ textAlign: "center", color: "#94a3b8", fontSize: "0.8rem", marginTop: 18 }}>
-          Code download is handled securely inside the Lovable editor.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 
 export function useAuthUser() {
@@ -321,7 +189,6 @@ export function Nav() {
 }
 
 export function Footer() {
-  const [showDownload, setShowDownload] = useState(false);
   return (
     <>
       <footer id="contact">
@@ -364,17 +231,8 @@ export function Footer() {
               </ul>
             </div>
             <div>
-              <h5>Project</h5>
+              <h5>Support</h5>
               <ul>
-                <li>
-                  <button
-                    className="footer-link-button"
-                    onClick={() => setShowDownload(true)}
-                    aria-label="Download codebase"
-                  >
-                    <i className="fas fa-download" /> Download Codebase
-                  </button>
-                </li>
                 <li><a href="#">Help Center</a></li>
                 <li><a href="#">Contact Us</a></li>
                 <li><a href="#">Privacy Policy</a></li>
@@ -386,7 +244,6 @@ export function Footer() {
           </div>
         </div>
       </footer>
-      <DownloadCodebaseModal open={showDownload} onClose={() => setShowDownload(false)} />
     </>
   );
 }
