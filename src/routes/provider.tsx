@@ -145,7 +145,7 @@ function ZeroLine({ labels }: { labels: string[] }) {
     <div className="pd-line-wrap" role="img" aria-label="Growth chart with no data yet">
       <svg viewBox="0 0 300 90" preserveAspectRatio="none" className="pd-line">
         {[0, 1, 2, 3].map((i) => (
-          <line key={i} x1="0" x2="300" y1={i * 28 + 2} y2={i * 28 + 2} className="pd-grid" />
+          <line key={i} x1="0" x2="300" y1={i * 28 + 2} y2={i * 28 + 2} className="pd-gridline" />
         ))}
         <polyline points="0,86 60,86 120,86 180,86 240,86 300,86" className="pd-line-path" />
       </svg>

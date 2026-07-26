@@ -1645,7 +1645,7 @@ footer a:hover,
 }
 .pd-line-wrap { position: relative; }
 .pd-line { width: 100%; height: 140px; }
-.pd-grid { stroke: rgba(226, 232, 240, 0.9); stroke-width: 1; }
+.pd-gridline { stroke: rgba(226, 232, 240, 0.9); stroke-width: 1; }
 .pd-line-path { fill: none; stroke: #2563eb; stroke-width: 2.5; }
 .pd-line-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted-foreground); }
 
