@@ -1750,3 +1750,6 @@ footer a:hover,
   .pd-stats { grid-template-columns: minmax(0, 1fr); }
   .pd-toggle { padding: 9px 10px; font-size: 0; gap: 0; }
 }
+
+/* Neutralise global section padding inside the provider dashboard */
+.pd-content section { padding: 0; }
