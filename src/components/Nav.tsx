@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { getUser, logout, type User } from "@/lib/auth";
+import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
+
 
 
 
@@ -123,10 +125,11 @@ export function Nav() {
         <div className="container-x nav-inner">
           <Link to="/" className="brand">
             <span className="brand-mark">
-              <i className="fas fa-broom" />
+              <img src={logoMark.url} alt="CleanConnect logo" />
             </span>
             CleanConnect
           </Link>
+
           <div className="nav-links">{links}</div>
           <div className="nav-cta" style={{ position: "relative" }}>
             {ctas}
@@ -149,10 +152,11 @@ export function Nav() {
         <div className="drawer-head">
           <span className="brand">
             <span className="brand-mark">
-              <i className="fas fa-broom" />
+              <img src={logoMark.url} alt="CleanConnect logo" />
             </span>
             CleanConnect
           </span>
+
           <button
             className="hamburger"
             aria-label="Close menu"
@@ -197,10 +201,11 @@ export function Footer() {
             <div className="footer-brand">
               <span className="brand" style={{ color: "#fff" }}>
                 <span className="brand-mark">
-                  <i className="fas fa-broom" />
+                  <img src={logoMark.url} alt="CleanConnect logo" />
                 </span>
                 CleanConnect
               </span>
+
               <p>
                 Verified cleaning and laundry professionals, on-demand across Abuja.
                 Book in minutes — relax while we handle the rest.
