@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { setUser } from "@/lib/auth";
 import { z } from "zod";
+import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
+
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -28,8 +30,9 @@ function LoginPage() {
       <div className="auth-card">
         <Link to="/" className="brand" style={{ marginBottom: 20 }}>
           <span className="brand-mark">
-            <i className="fas fa-broom" />
+            <img src={logoMark.url} alt="CleanConnect logo" />
           </span>
+
           CleanConnect
         </Link>
         <h1>Welcome back</h1>
