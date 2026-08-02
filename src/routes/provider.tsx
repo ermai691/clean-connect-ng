@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/provider")({
@@ -19,7 +20,12 @@ export const Route = createFileRoute("/provider")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ProviderDashboard,
+  ssr: false,
+  component: () => (
+    <RoleGuard role="provider">
+      <ProviderDashboard />
+    </RoleGuard>
+  ),
 });
 
 /* ---------------- Sidebar nav model ---------------- */
