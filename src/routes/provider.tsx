@@ -193,6 +193,7 @@ function ProviderDashboard() {
   const [online, setOnline] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dashOpen, setDashOpen] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
