@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Nav, Footer } from "@/components/Nav";
 
 export const Route = createFileRoute("/admin")({
@@ -8,7 +9,12 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "Manage users, providers, bookings and payouts across CleanConnect." },
     ],
   }),
-  component: AdminDashboard,
+  ssr: false,
+  component: () => (
+    <RoleGuard role="admin">
+      <AdminDashboard />
+    </RoleGuard>
+  ),
 });
 
 const STATS = [

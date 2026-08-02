@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Nav, Footer } from "@/components/Nav";
 
 export const Route = createFileRoute("/customer")({
@@ -8,7 +9,12 @@ export const Route = createFileRoute("/customer")({
       { name: "description", content: "Book services, track bookings and manage payments on CleanConnect." },
     ],
   }),
-  component: CustomerDashboard,
+  ssr: false,
+  component: () => (
+    <RoleGuard role="customer">
+      <CustomerDashboard />
+    </RoleGuard>
+  ),
 });
 
 const STATS = [

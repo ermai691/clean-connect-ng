@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/provider")({
@@ -19,7 +20,12 @@ export const Route = createFileRoute("/provider")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ProviderDashboard,
+  ssr: false,
+  component: () => (
+    <RoleGuard role="provider">
+      <ProviderDashboard />
+    </RoleGuard>
+  ),
 });
 
 /* ---------------- Sidebar nav model ---------------- */
@@ -193,6 +199,7 @@ function ProviderDashboard() {
   const [online, setOnline] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dashOpen, setDashOpen] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -239,12 +246,36 @@ function ProviderDashboard() {
         </div>
 
         <nav className="pd-nav">
-          {NAV.map((item) => (
+          <button
+            type="button"
+            className="pd-nav-item active"
+            aria-expanded={dashOpen}
+            onClick={() => setDashOpen((o) => !o)}
+            title="Dashboard"
+          >
+            <i className="fas fa-gauge-high" aria-hidden="true" />
+            <span>Dashboard</span>
+            <i className={`fas fa-chevron-down cc-caret${dashOpen ? " open" : ""}`} aria-hidden="true" />
+          </button>
+          <div className={`cc-submenu${dashOpen ? " open" : ""}`}>
+            <Link to="/customer" className="pd-nav-item pd-nav-sub">
+              <i className="fas fa-user" aria-hidden="true" />
+              <span>Customer Dashboard</span>
+            </Link>
+            <Link to="/provider" className="pd-nav-item pd-nav-sub">
+              <i className="fas fa-user-tie" aria-hidden="true" />
+              <span>Provider Dashboard</span>
+            </Link>
+            <Link to="/admin" className="pd-nav-item pd-nav-sub">
+              <i className="fas fa-shield-halved" aria-hidden="true" />
+              <span>Admin Dashboard</span>
+            </Link>
+          </div>
+          {NAV.filter((item) => item.label !== "Dashboard").map((item) => (
             <button
               key={item.label}
               type="button"
-              className={`pd-nav-item${item.active ? " active" : ""}`}
-              aria-current={item.active ? "page" : undefined}
+              className="pd-nav-item"
               title={item.label}
             >
               <i className={`fas ${item.icon}`} aria-hidden="true" />

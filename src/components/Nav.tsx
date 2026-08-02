@@ -21,6 +21,44 @@ export function useAuthUser() {
   return user;
 }
 
+const DASHBOARDS = [
+  { to: "/customer", icon: "fa-user", label: "Customer Dashboard" },
+  { to: "/provider", icon: "fa-user-tie", label: "Provider Dashboard" },
+  { to: "/admin", icon: "fa-shield-halved", label: "Admin Dashboard" },
+] as const;
+
+function DashboardMenu({ onNavigate }: { onNavigate: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="cc-dropdown">
+      <button
+        type="button"
+        className="nav-link cc-dropdown-trigger"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <i className="fas fa-table-columns" /> Dashboard
+        <i className={`fas fa-chevron-down cc-caret${open ? " open" : ""}`} />
+      </button>
+      <div className={`cc-submenu${open ? " open" : ""}`}>
+        {DASHBOARDS.map((d) => (
+          <Link
+            key={d.to}
+            to={d.to}
+            className="nav-link cc-submenu-item"
+            onClick={() => {
+              setOpen(false);
+              onNavigate();
+            }}
+          >
+            <i className={`fas ${d.icon}`} /> {d.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Nav() {
   const user = useAuthUser();
   const [open, setOpen] = useState(false);
@@ -51,6 +89,7 @@ export function Nav() {
       <a href="/#how" className="nav-link" onClick={() => setOpen(false)}>
         <i className="fas fa-list-check" /> How It Works
       </a>
+      <DashboardMenu onNavigate={() => setOpen(false)} />
       <a href="/#providers" className="nav-link" onClick={() => setOpen(false)}>
         <i className="fas fa-user-tie" /> Providers
       </a>
@@ -62,6 +101,7 @@ export function Nav() {
       </a>
     </>
   );
+
 
   const ctas = user ? (
     <>

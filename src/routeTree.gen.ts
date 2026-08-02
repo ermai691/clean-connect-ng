@@ -10,18 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProviderRouteImport } from './routes/provider'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as BookingRouteImport } from './routes/booking'
 import { Route as BecomeProviderRouteImport } from './routes/become-provider'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRoleRouteImport } from './routes/auth.$role'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProviderRoute = ProviderRouteImport.update({
@@ -32,6 +40,11 @@ const ProviderRoute = ProviderRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -64,6 +77,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoleRoute = AuthRoleRouteImport.update({
+  id: '/auth/$role',
+  path: '/auth/$role',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,9 +90,12 @@ export interface FileRoutesByFullPath {
   '/booking': typeof BookingRoute
   '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/auth/$role': typeof AuthRoleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +104,12 @@ export interface FileRoutesByTo {
   '/booking': typeof BookingRoute
   '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/auth/$role': typeof AuthRoleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,9 +119,12 @@ export interface FileRoutesById {
   '/booking': typeof BookingRoute
   '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/provider': typeof ProviderRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/auth/$role': typeof AuthRoleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,9 +135,12 @@ export interface FileRouteTypes {
     | '/booking'
     | '/customer'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
     | '/provider'
+    | '/reset-password'
     | '/signup'
+    | '/auth/$role'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,9 +149,12 @@ export interface FileRouteTypes {
     | '/booking'
     | '/customer'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
     | '/provider'
+    | '/reset-password'
     | '/signup'
+    | '/auth/$role'
   id:
     | '__root__'
     | '/'
@@ -130,9 +163,12 @@ export interface FileRouteTypes {
     | '/booking'
     | '/customer'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
     | '/provider'
+    | '/reset-password'
     | '/signup'
+    | '/auth/$role'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,9 +178,12 @@ export interface RootRouteChildren {
   BookingRoute: typeof BookingRoute
   CustomerRoute: typeof CustomerRoute
   DashboardRoute: typeof DashboardRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   ProviderRoute: typeof ProviderRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  AuthRoleRoute: typeof AuthRoleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -154,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/provider': {
@@ -168,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -212,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/$role': {
+      id: '/auth/$role'
+      path: '/auth/$role'
+      fullPath: '/auth/$role'
+      preLoaderRoute: typeof AuthRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -222,9 +282,12 @@ const rootRouteChildren: RootRouteChildren = {
   BookingRoute: BookingRoute,
   CustomerRoute: CustomerRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   ProviderRoute: ProviderRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  AuthRoleRoute: AuthRoleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
