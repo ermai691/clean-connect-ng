@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Nav, Footer } from "@/components/Nav";
+import { signUp } from "@/lib/auth";
 
 export const Route = createFileRoute("/become-provider")({
   head: () => ({
