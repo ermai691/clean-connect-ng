@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Nav, Footer } from "@/components/Nav";
+import { signUp } from "@/lib/auth";
 
 export const Route = createFileRoute("/become-provider")({
   head: () => ({
@@ -196,12 +197,15 @@ function ProviderRegistration() {
     if (!validateStep(4)) return;
     setSubmitting(true);
     setTimeout(() => {
+      // Register the provider account so they can log in from the Provider Dashboard.
+      signUp({ name: form.fullName, email: form.email, password: form.password, role: "provider" });
       setSubmitting(false);
       setSubmitted(true);
       localStorage.removeItem(STORAGE_KEY);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 1600);
   };
+
 
   if (submitted) return <SuccessView name={form.fullName} />;
 

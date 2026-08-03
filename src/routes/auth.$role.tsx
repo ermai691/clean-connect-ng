@@ -25,10 +25,10 @@ const COPY: Record<Role, { title: string; sub: string; icon: string; canSignUp: 
     canSignUp: true,
   },
   provider: {
-    title: "Provider Dashboard",
-    sub: "Log in or create a provider account to manage jobs and earnings.",
+    title: "Provider Login",
+    sub: "Log in with the email and password you registered with to manage jobs and earnings.",
     icon: "fa-user-tie",
-    canSignUp: true,
+    canSignUp: false,
   },
   admin: {
     title: "Admin Login",
