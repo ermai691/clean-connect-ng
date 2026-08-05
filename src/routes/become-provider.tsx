@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Nav, Footer } from "@/components/Nav";
-import { signUp } from "@/lib/auth";
+import { signUp, setUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/become-provider")({
   head: () => ({
@@ -111,11 +111,12 @@ const STORAGE_KEY = "cc_provider_draft";
 /* ---------- Component ---------- */
 
 function ProviderRegistration() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
 
@@ -196,18 +197,22 @@ function ProviderRegistration() {
   const submit = () => {
     if (!validateStep(4)) return;
     setSubmitting(true);
+    setSubmitError("");
     setTimeout(() => {
-      // Register the provider account so they can log in from the Provider Dashboard.
-      signUp({ name: form.fullName, email: form.email, password: form.password, role: "provider" });
+      // Register the provider account and sign them straight into their dashboard.
+      const res = signUp({ name: form.fullName, email: form.email, password: form.password, role: "provider" });
       setSubmitting(false);
-      setSubmitted(true);
+      if (!res.ok) {
+        setSubmitError(res.error);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      setUser(res.user, true);
       localStorage.removeItem(STORAGE_KEY);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      navigate({ to: "/provider", replace: true });
     }, 1600);
   };
 
-
-  if (submitted) return <SuccessView name={form.fullName} />;
 
   return (
     <>
@@ -294,6 +299,12 @@ function ProviderRegistration() {
               {step === 4 && <Step5 form={form} set={set} errors={errors} />}
               {step === 5 && <Step6 form={form} goTo={setStep} />}
             </div>
+
+            {submitError && (
+              <div className="pv-form-error" role="alert">
+                <i className="fas fa-circle-exclamation" /> {submitError}
+              </div>
+            )}
 
             {/* Nav buttons */}
             <div className="pv-form-nav">
@@ -698,54 +709,6 @@ function UploadBox({ label, value, onChange, error, icon, optional }: {
   );
 }
 
-/* ---------- Success ---------- */
-
-function SuccessView({ name }: { name: string }) {
-  const stages = [
-    { s: "done", i: "fa-paper-plane", t: "Application Submitted" },
-    { s: "active", i: "fa-file-lines", t: "Documents Under Review" },
-    { s: "pending", i: "fa-user-shield", t: "Background Verification" },
-    { s: "pending", i: "fa-user-check", t: "Admin Approval" },
-    { s: "idle", i: "fa-briefcase", t: "Ready to Receive Jobs" },
-  ];
-  return (
-    <>
-      <Nav />
-      <section className="pv-success">
-        <div className="container-x">
-          <div className="pv-success-card">
-            <div className="pv-success-tick">
-              <i className="fas fa-check" />
-              <span className="pv-ring" />
-            </div>
-            <h1>Application Submitted Successfully</h1>
-            <p>Welcome{name ? `, ${name.split(" ")[0]}` : ""}! We've received your provider application.</p>
-            <div className="pv-timeline">
-              {stages.map((st, i) => (
-                <div key={i} className={`pv-tl ${st.s}`}>
-                  <span className="pv-tl-dot"><i className={`fas ${st.i}`} /></span>
-                  <span className="pv-tl-label">{st.t}</span>
-                </div>
-              ))}
-            </div>
-            <div className="pv-eta">
-              <i className="fas fa-clock" />
-              <div><strong>Estimated approval: 24–48 hours</strong>
-                <small>We'll email and SMS you once verified.</small></div>
-            </div>
-            <div className="pv-success-actions">
-              <Link to="/" className="btn btn-outline">Back to Home</Link>
-              <Link to="/dashboard" className="btn btn-primary">Go to Dashboard</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      <Footer />
-      <style>{PV_STYLES}</style>
-    </>
-  );
-}
-
 /* ---------- Earnings Calculator ---------- */
 
 function EarningsCalculator() {
@@ -1010,4 +973,5 @@ const PV_STYLES = `
   .pv-save-hint{order:3;width:100%;justify-content:center;text-align:center}
   .pv-success-card{padding:32px 20px}
 }
+.pv-form-error{color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;padding:14px 16px;border-radius:10px;margin:0 0 18px;font-size:.9rem;display:flex;align-items:center;gap:8px}
 `;
