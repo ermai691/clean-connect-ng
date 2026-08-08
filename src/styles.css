@@ -1861,3 +1861,4 @@ footer a:hover,
   .ad-table td{border:0;display:flex;justify-content:space-between;gap:12px;white-space:normal;padding:8px 10px}
   .ad-table td::before{content:attr(data-label);font-weight:600;color:var(--muted-foreground)}
 }
+.pd-logo img{width:100%;height:100%;object-fit:contain;border-radius:10px}

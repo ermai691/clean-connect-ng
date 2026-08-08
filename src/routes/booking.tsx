@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { z } from "zod";
 import { Nav, Footer, useAuthUser } from "@/components/Nav";
+import { createBooking } from "@/lib/platform-data";
 
 const searchSchema = z.object({ service: z.string().optional() });
 
@@ -89,7 +90,17 @@ function BookingPage() {
           <Link to="/" className="btn btn-outline">
             Cancel
           </Link>
-          <button className="btn btn-primary" onClick={() => navigate({ to: "/dashboard" })}>
+          <button className="btn btn-primary" onClick={() => {
+            const service = search.service ?? "House cleaning";
+            createBooking({
+              customerName: user.name,
+              service,
+              category: service.toLowerCase().includes("laundry") ? "Laundry" : "House Cleaning",
+              amount: 0,
+              scheduledFor: new Date().toISOString(),
+            });
+            navigate({ to: "/dashboard" });
+          }}>
             <i className="fas fa-check" /> Confirm Booking
           </button>
         </div>
