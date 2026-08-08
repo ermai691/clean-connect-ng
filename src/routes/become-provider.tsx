@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Nav, Footer } from "@/components/Nav";
 import { signUp, setUser } from "@/lib/auth";
+import { submitProviderApplication } from "@/lib/platform-data";
 
 export const Route = createFileRoute("/become-provider")({
   head: () => ({
@@ -207,6 +208,13 @@ function ProviderRegistration() {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
+      submitProviderApplication({
+        name: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        services: form.services,
+        location: `${form.city}, ${form.state}`,
+      });
       setUser(res.user, true);
       localStorage.removeItem(STORAGE_KEY);
       navigate({ to: "/provider", replace: true });
