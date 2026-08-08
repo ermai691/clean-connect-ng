@@ -1816,3 +1816,49 @@ footer a:hover,
 .remember { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted-foreground); cursor: pointer; }
 .auth-inline-link { font-size: 0.85rem; color: var(--primary); font-weight: 600; }
 .auth-error { background: rgba(220,38,38,0.08); color: #b91c1c; border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; margin-bottom: 12px; }
+
+/* ---------------- Admin dashboard additions ---------------- */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ad-note{margin:10px 0 0;font-size:.82rem;color:var(--muted-foreground)}
+.ad-table-wrap{overflow-x:auto}
+.ad-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.ad-table th{text-align:left;padding:10px 12px;color:var(--muted-foreground);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+.ad-table td{padding:12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.ad-table tbody tr:hover{background:rgba(37,99,235,.04)}
+.ad-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:700;text-transform:capitalize}
+.ad-badge.ok{background:rgba(34,197,94,.14);color:#15803d}
+.ad-badge.warn{background:rgba(245,158,11,.16);color:#b45309}
+.ad-badge.bad{background:rgba(220,38,38,.13);color:#b91c1c}
+.ad-badge.info{background:rgba(37,99,235,.13);color:#1d4ed8}
+.ad-btn{border:0;border-radius:10px;padding:7px 14px;font-weight:700;font-size:.8rem;cursor:pointer;color:#fff;transition:transform .15s ease,filter .15s ease}
+.ad-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.ad-btn.ok{background:#22C55E}
+.ad-btn.bad{background:#EF4444}
+.ad-requests{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.ad-requests li{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.ad-requests li:last-child{border-bottom:0;padding-bottom:0}
+.ad-requests div{flex:1 1 140px;display:grid}
+.ad-requests strong{font-size:.92rem}
+.ad-requests em{font-style:normal;font-size:.78rem;color:var(--muted-foreground)}
+.ad-req-actions{display:flex;gap:8px;flex:0 0 auto}
+.ad-reviews,.ad-activity,.ad-simple-list,.ad-legend{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.ad-reviews li,.ad-simple-list li{padding-bottom:12px;border-bottom:1px solid var(--border)}
+.ad-simple-list li{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ad-simple-list em,.ad-reviews em{font-style:normal;font-size:.78rem;color:var(--muted-foreground);display:block}
+.ad-stars{color:#F59E0B;font-size:.9rem}
+.ad-reviews p{margin:6px 0 0;font-size:.85rem;color:var(--muted-foreground)}
+.ad-activity li{display:flex;gap:12px;align-items:center}
+.ad-activity div{flex:1}
+.ad-activity strong{display:block;font-size:.88rem}
+.ad-activity em{font-style:normal;font-size:.78rem;color:var(--muted-foreground)}
+.ad-activity time{font-size:.72rem;color:var(--muted-foreground);white-space:nowrap}
+.ad-legend-top{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:6px}
+.ad-legend-top em{font-style:normal;color:var(--muted-foreground)}
+@media (max-width:640px){
+  .ad-table thead{display:none}
+  .ad-table,.ad-table tbody,.ad-table tr,.ad-table td{display:block;width:100%}
+  .ad-table tr{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:6px}
+  .ad-table td{border:0;display:flex;justify-content:space-between;gap:12px;white-space:normal;padding:8px 10px}
+  .ad-table td::before{content:attr(data-label);font-weight:600;color:var(--muted-foreground)}
+}
+.pd-logo img{width:100%;height:100%;object-fit:contain;border-radius:10px}

@@ -10,6 +10,7 @@ import {
   signUp,
   type Role,
 } from "@/lib/auth";
+import { registerCustomer } from "@/lib/platform-data";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
 export const Route = createFileRoute("/auth/$role")({
@@ -75,6 +76,7 @@ function AuthPage() {
       }
       const res = signUp({ name, email, password, role: role as "customer" | "provider" });
       if (!res.ok) return setError(res.error);
+      if (role === "customer") registerCustomer({ name, email });
       setUser(res.user, remember);
       navigate({ to: dashboardPathFor(role), replace: true });
       return;
