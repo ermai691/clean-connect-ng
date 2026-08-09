@@ -171,7 +171,8 @@ function AdminDashboard() {
     };
   }, []);
 
-  const signOut = () => {
+  const signOut = async () => {
+    await signOutAdmin();
     logout();
     navigate({ to: "/auth/$role", params: { role: "admin" }, replace: true });
   };
