@@ -106,7 +106,7 @@ function ResetPassword() {
         </Link>
         <h1>Set a new password</h1>
 
-        {!valid.ok ? (
+        {!recovery && !valid.ok ? (
           <>
             <p className="sub">This reset link is invalid or has expired. Please request a new one.</p>
             <Link to="/forgot-password" search={{ role: "customer" as Role }} className="btn btn-primary">
