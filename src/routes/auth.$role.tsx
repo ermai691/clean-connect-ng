@@ -215,8 +215,8 @@ function AuthPage() {
             </p>
           )}
 
-          <button className="btn btn-primary" type="submit">
-            {mode === "signup" ? "Create Account" : "Log In"}
+          <button className="btn btn-primary" type="submit" disabled={busy}>
+            {busy ? <><i className="fas fa-spinner fa-spin" /> Signing in…</> : mode === "signup" ? "Create Account" : "Log In"}
           </button>
         </form>
 
