@@ -11,9 +11,9 @@ const RESET_TTL_MS = 15 * 60 * 1000;
 
 type Account = { name: string; email: string; password: string; role: Role };
 
-const SEED: Account[] = [
-  { name: "CleanConnect Admin", email: "admin@cleanconnect.ng", password: "Admin@1234", role: "admin" },
-];
+// No seeded credentials: administrators authenticate against the real backend
+// (see src/lib/admin-auth.ts), never against this client-side store.
+const SEED: Account[] = [];
 
 function isBrowser() {
   return typeof window !== "undefined";
