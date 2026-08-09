@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RoleGuard } from "@/components/RoleGuard";
 import { getUser, logout } from "@/lib/auth";
+import { signOutAdmin } from "@/lib/admin-auth";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 import {
   MONTH_LABELS,
