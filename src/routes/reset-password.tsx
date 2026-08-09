@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { passwordChecks, passwordScore, resetPassword, validateResetToken, type Role } from "@/lib/auth";
+import { hasRecoverySession, signOutAdmin, updateAdminPassword } from "@/lib/admin-auth";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
 const searchSchema = z.object({ token: z.string().optional() });
@@ -25,21 +26,59 @@ function ResetPassword() {
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<Role | null>(null);
+  // null = still resolving the secure recovery link from the email
+  const [recovery, setRecovery] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void hasRecoverySession().then((ok) => {
+      if (active) setRecovery(ok);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const valid = useMemo(() => validateResetToken(token), [token]);
   const checks = passwordChecks(pw);
   const score = passwordScore(pw);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (score < 5) return setError("Password must be 8+ characters with upper, lower, number and special character.");
     if (pw !== confirm) return setError("Passwords do not match.");
+
+    if (recovery) {
+      setBusy(true);
+      const res = await updateAdminPassword(pw);
+      if (!res.ok) {
+        setBusy(false);
+        return setError(res.error);
+      }
+      // Force a fresh sign-in with the new password.
+      await signOutAdmin();
+      setBusy(false);
+      setDone("admin");
+      return;
+    }
+
     const res = resetPassword(token, pw);
     if (!res.ok) return setError(res.error);
     setDone(res.role);
   };
+
+  if (recovery === null) {
+    return (
+      <div className="auth-shell">
+        <div className="auth-card" style={{ textAlign: "center" }}>
+          <p className="sub"><i className="fas fa-spinner fa-spin" /> Verifying your secure link…</p>
+        </div>
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -47,7 +86,7 @@ function ResetPassword() {
         <div className="auth-card" style={{ textAlign: "center" }}>
           <div style={{ fontSize: "2.4rem", color: "#22C55E" }}><i className="fas fa-circle-check" /></div>
           <h1>Password Reset Successful</h1>
-          <p className="sub">Your password has been updated successfully.</p>
+          <p className="sub">Your password has been updated securely. You can now log in with it.</p>
           <button className="btn btn-primary" onClick={() => navigate({ to: "/auth/$role", params: { role: done } })}>
             Go to Login
           </button>
@@ -67,7 +106,7 @@ function ResetPassword() {
         </Link>
         <h1>Set a new password</h1>
 
-        {!valid.ok ? (
+        {!recovery && !valid.ok ? (
           <>
             <p className="sub">This reset link is invalid or has expired. Please request a new one.</p>
             <Link to="/forgot-password" search={{ role: "customer" as Role }} className="btn btn-primary">
@@ -121,7 +160,9 @@ function ResetPassword() {
                 />
               </div>
               {error && <p className="auth-error" role="alert"><i className="fas fa-circle-exclamation" /> {error}</p>}
-              <button className="btn btn-primary" type="submit">Update Password</button>
+              <button className="btn btn-primary" type="submit" disabled={busy}>
+                {busy ? <><i className="fas fa-spinner fa-spin" /> Updating…</> : "Update Password"}
+              </button>
             </form>
           </>
         )}

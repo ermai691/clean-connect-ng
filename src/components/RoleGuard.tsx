@@ -1,28 +1,58 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { dashboardPathFor, getUser, type Role, type User } from "@/lib/auth";
+import { currentAdmin } from "@/lib/admin-auth";
 
 /**
- * Client-side role guard for the mock auth system.
- * - Not signed in  → redirect to /auth/{role}
- * - Wrong role     → Access Denied (403) with a link to their own dashboard
+ * Route guard.
+ * - Admin routes are verified against the real backend session + admin role.
+ * - Customer/provider routes keep the existing client session.
  */
 export function RoleGuard({ role, children }: { role: Role; children: ReactNode }) {
   const navigate = useNavigate();
-  const [state, setState] = useState<{ ready: boolean; user: User | null }>({ ready: false, user: null });
+  const [state, setState] = useState<{ ready: boolean; user: User | null; denied: boolean }>({
+    ready: false,
+    user: null,
+    denied: false,
+  });
 
   useEffect(() => {
-    const sync = () => {
+    let active = true;
+
+    const sync = async () => {
+      if (role === "admin") {
+        const admin = await currentAdmin();
+        if (!active) return;
+        if (admin) {
+          setState({ ready: true, user: { name: admin.name, email: admin.email, role: "admin" }, denied: false });
+          return;
+        }
+        const other = getUser();
+        if (other) {
+          setState({ ready: true, user: other, denied: true });
+          return;
+        }
+        setState({ ready: true, user: null, denied: false });
+        navigate({ to: "/auth/$role", params: { role: "admin" }, replace: true });
+        return;
+      }
+
       const user = getUser();
-      setState({ ready: true, user });
+      if (!active) return;
+      setState({ ready: true, user, denied: false });
       if (!user) navigate({ to: "/auth/$role", params: { role }, replace: true });
     };
-    sync();
-    window.addEventListener("cc-auth-change", sync);
-    return () => window.removeEventListener("cc-auth-change", sync);
+
+    void sync();
+    const onChange = () => void sync();
+    window.addEventListener("cc-auth-change", onChange);
+    return () => {
+      active = false;
+      window.removeEventListener("cc-auth-change", onChange);
+    };
   }, [navigate, role]);
 
-  if (!state.ready || !state.user) {
+  if (!state.ready || (!state.user && !state.denied)) {
     return (
       <div className="auth-shell">
         <div className="auth-card" style={{ textAlign: "center" }}>
@@ -32,18 +62,22 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
     );
   }
 
-  if (state.user.role !== role) {
+  if (state.denied || (state.user && state.user.role !== role)) {
+    const signedInRole = state.user?.role ?? "customer";
     return (
       <div className="auth-shell">
         <div className="auth-card" style={{ textAlign: "center" }}>
           <div style={{ fontSize: "2.4rem", color: "#dc2626" }}><i className="fas fa-ban" /></div>
-          <h1>403 — Access Denied</h1>
+          <h1>{role === "admin" ? "Administrator access required." : "403 — Access Denied"}</h1>
           <p className="sub">
-            You're signed in as a {state.user.role}. This area is restricted to {role} accounts.
+            You're signed in as a {signedInRole}. This area is restricted to {role} accounts.
           </p>
-          <Link to={dashboardPathFor(state.user.role)} className="btn btn-primary">
+          <Link to={dashboardPathFor(signedInRole)} className="btn btn-primary">
             Go to my dashboard
           </Link>
+          <div className="auth-alt">
+            <Link to="/auth/$role" params={{ role: "admin" }}>Administrator login</Link>
+          </div>
         </div>
       </div>
     );

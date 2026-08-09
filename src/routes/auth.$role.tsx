@@ -10,6 +10,7 @@ import {
   signUp,
   type Role,
 } from "@/lib/auth";
+import { currentAdmin, signInAdmin } from "@/lib/admin-auth";
 import { registerCustomer } from "@/lib/platform-data";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
@@ -56,19 +57,37 @@ function AuthPage() {
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   // Already signed in → straight to the right dashboard.
   useEffect(() => {
+    if (role === "admin") {
+      void currentAdmin().then((admin) => {
+        if (admin) navigate({ to: "/admin", replace: true });
+      });
+      return;
+    }
     const user = getUser();
     if (user) navigate({ to: dashboardPathFor(user.role), replace: true });
-  }, [navigate]);
+  }, [navigate, role]);
 
   const checks = useMemo(() => passwordChecks(password), [password]);
   const score = passwordScore(password);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Administrator login runs against the real backend auth + admin role check.
+    if (role === "admin") {
+      setBusy(true);
+      const res = await signInAdmin(email, password);
+      setBusy(false);
+      if (!res.ok) return setError(res.error);
+      navigate({ to: "/admin", replace: true });
+      return;
+    }
+
     if (mode === "signup") {
       if (score < 5) {
         setError("Password must be 8+ characters with upper, lower, number and special character.");
@@ -196,8 +215,8 @@ function AuthPage() {
             </p>
           )}
 
-          <button className="btn btn-primary" type="submit">
-            {mode === "signup" ? "Create Account" : "Log In"}
+          <button className="btn btn-primary" type="submit" disabled={busy}>
+            {busy ? <><i className="fas fa-spinner fa-spin" /> Signing in…</> : mode === "signup" ? "Create Account" : "Log In"}
           </button>
         </form>
 
