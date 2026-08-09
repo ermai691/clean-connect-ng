@@ -25,10 +25,23 @@ function ForgotPassword() {
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState("");
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (role === "admin") {
+      setBusy(true);
+      try {
+        await requestAdminPasswordSetup({ data: { email: identifier.trim() } });
+      } catch {
+        /* generic response either way — no account enumeration */
+      }
+      setBusy(false);
+      setToken(null);
+      setSent(true);
+      return;
+    }
     const res = requestPasswordReset(identifier, role);
     setToken(res.token);
     setSent(true);
