@@ -160,7 +160,9 @@ function ResetPassword() {
                 />
               </div>
               {error && <p className="auth-error" role="alert"><i className="fas fa-circle-exclamation" /> {error}</p>}
-              <button className="btn btn-primary" type="submit">Update Password</button>
+              <button className="btn btn-primary" type="submit" disabled={busy}>
+                {busy ? <><i className="fas fa-spinner fa-spin" /> Updating…</> : "Update Password"}
+              </button>
             </form>
           </>
         )}
