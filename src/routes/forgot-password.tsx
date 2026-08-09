@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { requestPasswordReset, type Role } from "@/lib/auth";
+import { requestAdminPasswordSetup } from "@/lib/admin-auth.functions";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
 const searchSchema = z.object({
