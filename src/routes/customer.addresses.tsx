@@ -4,7 +4,7 @@ import { EmptyState, ErrorState, Skeletons } from "@/components/CustomerShell";
 import { deleteAddress, saveAddress, useCustomerData } from "@/lib/customer-data";
 
 export const Route = createFileRoute("/customer/addresses")({
-  component: CustomerAddresses;
+  component: CustomerAddresses,
 });
 
 function CustomerAddresses() {
