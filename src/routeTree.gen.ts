@@ -20,6 +20,12 @@ import { Route as BookingRouteImport } from './routes/booking'
 import { Route as BecomeProviderRouteImport } from './routes/become-provider'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CustomerIndexRouteImport } from './routes/customer.index'
+import { Route as CustomerReviewsRouteImport } from './routes/customer.reviews'
+import { Route as CustomerPaymentsRouteImport } from './routes/customer.payments'
+import { Route as CustomerMessagesRouteImport } from './routes/customer.messages'
+import { Route as CustomerBookingsRouteImport } from './routes/customer.bookings'
+import { Route as CustomerBookRouteImport } from './routes/customer.book'
 import { Route as AuthRoleRouteImport } from './routes/auth.$role'
 
 const SignupRoute = SignupRouteImport.update({
@@ -77,6 +83,36 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomerIndexRoute = CustomerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerReviewsRoute = CustomerReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerPaymentsRoute = CustomerPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerMessagesRoute = CustomerMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerBookingsRoute = CustomerBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerBookRoute = CustomerBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => CustomerRoute,
+} as any)
 const AuthRoleRoute = AuthRoleRouteImport.update({
   id: '/auth/$role',
   path: '/auth/$role',
@@ -88,7 +124,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
-  '/customer': typeof CustomerRoute
+  '/customer': typeof CustomerRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -96,13 +132,18 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/auth/$role': typeof AuthRoleRoute
+  '/customer/book': typeof CustomerBookRoute
+  '/customer/bookings': typeof CustomerBookingsRoute
+  '/customer/messages': typeof CustomerMessagesRoute
+  '/customer/payments': typeof CustomerPaymentsRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer/': typeof CustomerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
-  '/customer': typeof CustomerRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -110,6 +151,12 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/auth/$role': typeof AuthRoleRoute
+  '/customer/book': typeof CustomerBookRoute
+  '/customer/bookings': typeof CustomerBookingsRoute
+  '/customer/messages': typeof CustomerMessagesRoute
+  '/customer/payments': typeof CustomerPaymentsRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer': typeof CustomerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -117,7 +164,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
   '/booking': typeof BookingRoute
-  '/customer': typeof CustomerRoute
+  '/customer': typeof CustomerRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -125,6 +172,12 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/auth/$role': typeof AuthRoleRoute
+  '/customer/book': typeof CustomerBookRoute
+  '/customer/bookings': typeof CustomerBookingsRoute
+  '/customer/messages': typeof CustomerMessagesRoute
+  '/customer/payments': typeof CustomerPaymentsRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer/': typeof CustomerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,13 +194,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/auth/$role'
+    | '/customer/book'
+    | '/customer/bookings'
+    | '/customer/messages'
+    | '/customer/payments'
+    | '/customer/reviews'
+    | '/customer/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/become-provider'
     | '/booking'
-    | '/customer'
     | '/dashboard'
     | '/forgot-password'
     | '/login'
@@ -155,6 +213,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/auth/$role'
+    | '/customer/book'
+    | '/customer/bookings'
+    | '/customer/messages'
+    | '/customer/payments'
+    | '/customer/reviews'
+    | '/customer'
   id:
     | '__root__'
     | '/'
@@ -169,6 +233,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/auth/$role'
+    | '/customer/book'
+    | '/customer/bookings'
+    | '/customer/messages'
+    | '/customer/payments'
+    | '/customer/reviews'
+    | '/customer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,7 +246,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BecomeProviderRoute: typeof BecomeProviderRoute
   BookingRoute: typeof BookingRoute
-  CustomerRoute: typeof CustomerRoute
+  CustomerRoute: typeof CustomerRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -265,6 +335,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customer/': {
+      id: '/customer/'
+      path: '/'
+      fullPath: '/customer/'
+      preLoaderRoute: typeof CustomerIndexRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/reviews': {
+      id: '/customer/reviews'
+      path: '/reviews'
+      fullPath: '/customer/reviews'
+      preLoaderRoute: typeof CustomerReviewsRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/payments': {
+      id: '/customer/payments'
+      path: '/payments'
+      fullPath: '/customer/payments'
+      preLoaderRoute: typeof CustomerPaymentsRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/messages': {
+      id: '/customer/messages'
+      path: '/messages'
+      fullPath: '/customer/messages'
+      preLoaderRoute: typeof CustomerMessagesRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/bookings': {
+      id: '/customer/bookings'
+      path: '/bookings'
+      fullPath: '/customer/bookings'
+      preLoaderRoute: typeof CustomerBookingsRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/book': {
+      id: '/customer/book'
+      path: '/book'
+      fullPath: '/customer/book'
+      preLoaderRoute: typeof CustomerBookRouteImport
+      parentRoute: typeof CustomerRoute
+    }
     '/auth/$role': {
       id: '/auth/$role'
       path: '/auth/$role'
@@ -275,12 +387,34 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CustomerRouteChildren {
+  CustomerBookRoute: typeof CustomerBookRoute
+  CustomerBookingsRoute: typeof CustomerBookingsRoute
+  CustomerMessagesRoute: typeof CustomerMessagesRoute
+  CustomerPaymentsRoute: typeof CustomerPaymentsRoute
+  CustomerReviewsRoute: typeof CustomerReviewsRoute
+  CustomerIndexRoute: typeof CustomerIndexRoute
+}
+
+const CustomerRouteChildren: CustomerRouteChildren = {
+  CustomerBookRoute: CustomerBookRoute,
+  CustomerBookingsRoute: CustomerBookingsRoute,
+  CustomerMessagesRoute: CustomerMessagesRoute,
+  CustomerPaymentsRoute: CustomerPaymentsRoute,
+  CustomerReviewsRoute: CustomerReviewsRoute,
+  CustomerIndexRoute: CustomerIndexRoute,
+}
+
+const CustomerRouteWithChildren = CustomerRoute._addFileChildren(
+  CustomerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BecomeProviderRoute: BecomeProviderRoute,
   BookingRoute: BookingRoute,
-  CustomerRoute: CustomerRoute,
+  CustomerRoute: CustomerRouteWithChildren,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
@@ -292,13 +426,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
