@@ -14,6 +14,318 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          state: string | null
+          street: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          state?: string | null
+          street: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          state?: string | null
+          street?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          address: string | null
+          amount: number
+          category: string
+          created_at: string
+          customer_id: string
+          id: string
+          notes: string | null
+          package: string | null
+          provider_id: string | null
+          reference: string
+          scheduled_for: string
+          service: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amount?: number
+          category?: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          notes?: string | null
+          package?: string | null
+          provider_id?: string | null
+          reference?: string
+          scheduled_for: string
+          service: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amount?: number
+          category?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          package?: string | null
+          provider_id?: string | null
+          reference?: string
+          scheduled_for?: string
+          service?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          booking_id: string | null
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          method: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          method?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          method?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          city: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string
+          full_name: string
+          gender: string | null
+          id: string
+          language: string
+          loyalty_points: number
+          notify_bookings: boolean
+          notify_email: boolean
+          notify_promotions: boolean
+          notify_sms: boolean
+          phone: string | null
+          referral_code: string | null
+          referral_count: number
+          referral_rewards: number
+          state: string | null
+          updated_at: string
+          wallet_balance: number
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string
+          full_name?: string
+          gender?: string | null
+          id: string
+          language?: string
+          loyalty_points?: number
+          notify_bookings?: boolean
+          notify_email?: boolean
+          notify_promotions?: boolean
+          notify_sms?: boolean
+          phone?: string | null
+          referral_code?: string | null
+          referral_count?: number
+          referral_rewards?: number
+          state?: string | null
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string
+          full_name?: string
+          gender?: string | null
+          id?: string
+          language?: string
+          loyalty_points?: number
+          notify_bookings?: boolean
+          notify_email?: boolean
+          notify_promotions?: boolean
+          notify_sms?: boolean
+          phone?: string | null
+          referral_code?: string | null
+          referral_count?: number
+          referral_rewards?: number
+          state?: string | null
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          provider_id: string | null
+          rating: number
+          service: string
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          provider_id?: string | null
+          rating: number
+          service?: string
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          provider_id?: string | null
+          rating?: number
+          service?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -31,6 +343,33 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string
           user_id?: string
         }
         Relationships: []
