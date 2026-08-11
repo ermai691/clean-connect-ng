@@ -148,6 +148,9 @@ export function useCustomerData() {
   const [data, setData] = useState<CustomerData>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Each hook instance owns its own realtime topic: supabase-js reuses a channel
+  // by topic name, and calling `.on()` on an already-subscribed channel throws.
+  const topicRef = useRef(`customer-${Math.random().toString(36).slice(2)}`);
 
   const load = useCallback(async () => {
     setError(null);
@@ -176,8 +179,12 @@ export function useCustomerData() {
           supabase.from("addresses").select("*").eq("user_id", uid).order("created_at", { ascending: true }),
         ]);
 
+      // A brand-new customer may not have a profile row yet — create it, never crash.
+      let profileRow = (profile.data as CustomerProfile | null) ?? null;
+      if (!profileRow) profileRow = await ensureCustomerRecords();
+
       setData({
-        profile: (profile.data as CustomerProfile | null) ?? null,
+        profile: profileRow,
         bookings: (bookings.data ?? []) as Booking[],
         payments: (payments.data ?? []) as Payment[],
         wallet: (wallet.data ?? []) as WalletTx[],
@@ -201,7 +208,7 @@ export function useCustomerData() {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel(`customer-${userId}`)
+      .channel(`${topicRef.current}-${userId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => void load())
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => void load())
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => void load())
@@ -210,6 +217,7 @@ export function useCustomerData() {
       void supabase.removeChannel(channel);
     };
   }, [userId, load]);
+
 
   return { userId, data, loading, error, reload: load };
 }
