@@ -11,6 +11,7 @@ import {
   type Role,
 } from "@/lib/auth";
 import { currentAdmin, signInAdmin } from "@/lib/admin-auth";
+import { signInCustomer, signUpCustomer } from "@/lib/customer-auth";
 import { registerCustomer } from "@/lib/platform-data";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
@@ -88,6 +89,19 @@ function AuthPage() {
       return;
     }
 
+    // Customers authenticate against the real backend (same system as bookings/wallet).
+    if (role === "customer") {
+      setBusy(true);
+      const res =
+        mode === "signup"
+          ? await signUpCustomer({ name, email, password })
+          : await signInCustomer(email, password, remember);
+      setBusy(false);
+      if (!res.ok) return setError(res.error);
+      navigate({ to: "/customer", replace: true });
+      return;
+    }
+
     if (mode === "signup") {
       if (score < 5) {
         setError("Password must be 8+ characters with upper, lower, number and special character.");
@@ -95,7 +109,6 @@ function AuthPage() {
       }
       const res = signUp({ name, email, password, role: role as "customer" | "provider" });
       if (!res.ok) return setError(res.error);
-      if (role === "customer") registerCustomer({ name, email });
       setUser(res.user, remember);
       navigate({ to: dashboardPathFor(role), replace: true });
       return;
