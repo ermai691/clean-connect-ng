@@ -11,6 +11,7 @@ import {
   type Role,
 } from "@/lib/auth";
 import { currentAdmin, signInAdmin } from "@/lib/admin-auth";
+import { signInCustomer, signUpCustomer } from "@/lib/customer-auth";
 import { registerCustomer } from "@/lib/platform-data";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
