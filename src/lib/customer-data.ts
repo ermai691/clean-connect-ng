@@ -1,9 +1,10 @@
 // Real customer data layer — every read/write is scoped to the authenticated
 // customer by RLS. No demo data, no localStorage state.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { CustomerProfile } from "@/lib/customer-auth";
+import { ensureCustomerRecords, type CustomerProfile } from "@/lib/customer-auth";
+
 
 export type BookingStatus =
   | "pending"
