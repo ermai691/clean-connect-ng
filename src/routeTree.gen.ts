@@ -31,6 +31,7 @@ import { Route as CustomerBookingsRouteImport } from './routes/customer.bookings
 import { Route as CustomerBookRouteImport } from './routes/customer.book'
 import { Route as CustomerAddressesRouteImport } from './routes/customer.addresses'
 import { Route as AuthRoleRouteImport } from './routes/auth.$role'
+import { Route as ApiPublicDevTestUserRouteImport } from './routes/api/public/dev-test-user'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -142,6 +143,11 @@ const AuthRoleRoute = AuthRoleRouteImport.update({
   path: '/auth/$role',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDevTestUserRoute = ApiPublicDevTestUserRouteImport.update({
+  id: '/api/public/dev-test-user',
+  path: '/api/public/dev-test-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/customer/settings': typeof CustomerSettingsRoute
   '/customer/support': typeof CustomerSupportRoute
   '/customer/': typeof CustomerIndexRoute
+  '/api/public/dev-test-user': typeof ApiPublicDevTestUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/customer/settings': typeof CustomerSettingsRoute
   '/customer/support': typeof CustomerSupportRoute
   '/customer': typeof CustomerIndexRoute
+  '/api/public/dev-test-user': typeof ApiPublicDevTestUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/customer/settings': typeof CustomerSettingsRoute
   '/customer/support': typeof CustomerSupportRoute
   '/customer/': typeof CustomerIndexRoute
+  '/api/public/dev-test-user': typeof ApiPublicDevTestUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/customer/settings'
     | '/customer/support'
     | '/customer/'
+    | '/api/public/dev-test-user'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/customer/settings'
     | '/customer/support'
     | '/customer'
+    | '/api/public/dev-test-user'
   id:
     | '__root__'
     | '/'
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/customer/settings'
     | '/customer/support'
     | '/customer/'
+    | '/api/public/dev-test-user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -302,6 +314,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   AuthRoleRoute: typeof AuthRoleRoute
+  ApiPublicDevTestUserRoute: typeof ApiPublicDevTestUserRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRoleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/dev-test-user': {
+      id: '/api/public/dev-test-user'
+      path: '/api/public/dev-test-user'
+      fullPath: '/api/public/dev-test-user'
+      preLoaderRoute: typeof ApiPublicDevTestUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -506,6 +526,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   AuthRoleRoute: AuthRoleRoute,
+  ApiPublicDevTestUserRoute: ApiPublicDevTestUserRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
