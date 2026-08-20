@@ -90,7 +90,7 @@ const services: Service[] = [
     category: "Commercial",
     icon: "fa-building",
     image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=70",
+      "/office-cleaning.png",
     desc: "Keep your workspace pristine and your team productive.",
     long: "Recurring or one-off office cleaning with discreet, trained staff.",
     price: 25000,
