@@ -180,7 +180,7 @@ const services: Service[] = [
     category: "Specialty",
     icon: "fa-champagne-glasses",
     image:
-      "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=70",
+      "/event-cleaning.png",
     desc: "Before or after your event — leave the mess to us.",
     long: "Fast, discreet event cleanup crews for parties, weddings, and corporate events.",
     price: 45000,
