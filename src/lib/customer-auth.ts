@@ -1,103 +1,115 @@
-// Real (backend-backed) authentication + profile for CleanConnect customers.
-// Passwords are never stored in the frontend — they live only in the auth provider.
-
 import { supabase } from "@/integrations/supabase/client";
 import { setUser as setLocalUser, logout as clearLocalUser } from "@/lib/auth";
+import { provisionCustomerRole } from "@/lib/customer-auth.functions";
 
-export type CustomerProfile = {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  avatar_url: string | null;
-  date_of_birth: string | null;
-  gender: string | null;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  wallet_balance: number;
-  loyalty_points: number;
-  referral_code: string | null;
-  referral_count: number;
-  referral_rewards: number;
-  notify_email: boolean;
-  notify_sms: boolean;
-  notify_bookings: boolean;
-  notify_promotions: boolean;
-  language: string;
-};
+const authRedirectUrl = () => `${window.location.origin}/auth/customer`;
 
-function makeReferralCode(name: string) {
-  const base = (name || "CC").replace(/[^a-zA-Z]/g, "").slice(0, 4).toUpperCase() || "CC";
-  return `${base}${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+function friendlyAuthError(message: string) {
+  if (/email not confirmed/i.test(message)) {
+    return "Please confirm your email address using the verification link, then log in again.";
+  }
+  if (/invalid login credentials/i.test(message)) return "Incorrect email or password.";
+  if (/already registered|already exists/i.test(message)) return "An account with that email already exists. Try logging in.";
+  if (/password/i.test(message) && /weak|short|characters/i.test(message)) return message;
+  return message;
 }
 
-/** Creates the profile row + customer role for the signed-in user if missing. */
-export async function ensureCustomerRecords(fullName?: string) {
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  if (!user) return null;
+function mirrorSession(name: string, email: string) {
+  // This is a navigation convenience only. Supabase Auth remains the source of truth.
+  setLocalUser({ name, email, role: "customer" }, true);
+}
 
-  const { data: existing } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+async function provisionRole(fullName?: string) {
+  const result = await provisionCustomerRole({ data: { fullName: fullName?.trim() || undefined } });
+  return result.ok ? result : { ok: false as const, error: result.error };
+}
 
-  if (!existing) {
-    const name = fullName || (user.user_metadata?.["full_name"] as string) || user.email?.split("@")[0] || "Customer";
-    await supabase.from("profiles").insert({
-      id: user.id,
-      full_name: name,
-      email: user.email ?? "",
-      referral_code: makeReferralCode(name),
-    });
-  }
-
-  const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
-  if (!roles || roles.length === 0) {
-    await supabase.from("user_roles").insert({ user_id: user.id, role: "customer" });
-  }
-
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-  return (profile as CustomerProfile | null) ?? null;
+/**
+ * Compatibility shim for the later customer-domain data layer.
+ * Profiles are intentionally deferred until the approved customer-domain phase;
+ * Phase 1 provisions only the authoritative customer role.
+ */
+export async function ensureCustomerRecords(fullName?: string): Promise<CustomerProfile | null> {
+  await provisionRole(fullName);
+  return null;
 }
 
 export async function signUpCustomer(input: { name: string; email: string; password: string }) {
+  const name = input.name.trim();
+  const email = input.email.trim().toLowerCase();
+  if (!name) return { ok: false as const, error: "Full name is required." };
+  if (input.password.length < 8) return { ok: false as const, error: "Password must be at least 8 characters." };
+
   const { data, error } = await supabase.auth.signUp({
-    email: input.email.trim().toLowerCase(),
+    email,
     password: input.password,
     options: {
-      emailRedirectTo: `${window.location.origin}/auth/customer`,
-      data: { full_name: input.name.trim() },
+      emailRedirectTo: authRedirectUrl(),
+      data: { full_name: name },
     },
   });
-  if (error) return { ok: false as const, error: error.message };
+  if (error) return { ok: false as const, error: friendlyAuthError(error.message) };
+
   if (!data.session) {
-    return { ok: false as const, error: "Check your email to confirm your account, then log in." };
+    return {
+      ok: false as const,
+      needsConfirmation: true as const,
+      error: "Account created. Check your email to confirm your account, then return here to log in.",
+    };
   }
-  const profile = await ensureCustomerRecords(input.name.trim());
-  mirrorSession(profile?.full_name ?? input.name, data.user?.email ?? input.email);
+
+  const role = await provisionRole(name);
+  if (!role.ok) return { ok: false as const, error: role.error };
+  mirrorSession(name, data.user?.email ?? email);
   return { ok: true as const };
 }
 
-export async function signInCustomer(email: string, password: string, remember = true) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: email.trim().toLowerCase(),
-    password,
+export async function resendCustomerConfirmation(email: string) {
+  const value = email.trim().toLowerCase();
+  if (!value) return { ok: false as const, error: "Enter your email address first." };
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: value,
+    options: { emailRedirectTo: authRedirectUrl() },
   });
-  if (error || !data.user) return { ok: false as const, error: error?.message ?? "Incorrect email or password." };
+  // Keep the response generic so the UI does not reveal whether an address exists.
+  return error
+    ? { ok: false as const, error: friendlyAuthError(error.message) }
+    : { ok: true as const, message: "If the account needs confirmation, a new verification email has been sent." };
+}
 
-  const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" });
-  if (isAdmin) {
-    await supabase.auth.signOut();
-    return { ok: false as const, error: "This is an administrator account. Use the Administrator Login." };
+export async function signInWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: authRedirectUrl() },
+  });
+  return error ? { ok: false as const, error: friendlyAuthError(error.message) } : { ok: true as const };
+}
+
+export async function signInCustomer(email: string, password: string) {
+  const value = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.signInWithPassword({ email: value, password });
+  if (error || !data.user) {
+    return { ok: false as const, error: friendlyAuthError(error?.message ?? "Incorrect email or password.") };
   }
 
-  const profile = await ensureCustomerRecords();
-  mirrorSession(profile?.full_name ?? "Customer", data.user.email ?? email, remember);
+  const role = await provisionRole((data.user.user_metadata?.["full_name"] as string | undefined) ?? undefined);
+  if (!role.ok) {
+    await supabase.auth.signOut();
+    return { ok: false as const, error: role.error };
+  }
+  mirrorSession((data.user.user_metadata?.["full_name"] as string | undefined) ?? "Customer", data.user.email ?? value);
   return { ok: true as const };
 }
 
-/** Keeps the site-wide navigation in sync with the real session (no credentials stored). */
-function mirrorSession(name: string, email: string, remember = true) {
-  setLocalUser({ name, email, role: "customer" }, remember);
+export async function finishCustomerSession() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user || !data.user.email_confirmed_at) return null;
+  const role = await provisionRole((data.user.user_metadata?.["full_name"] as string | undefined) ?? undefined);
+  if (!role.ok) return null;
+  const name = (data.user.user_metadata?.["full_name"] as string | undefined) ?? "Customer";
+  mirrorSession(name, data.user.email ?? "");
+  return { id: data.user.id, email: data.user.email ?? "", name };
 }
 
 export async function signOutCustomer() {
@@ -105,15 +117,12 @@ export async function signOutCustomer() {
   clearLocalUser();
 }
 
-export async function currentCustomer(): Promise<{ id: string; email: string } | null> {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" });
-  if (isAdmin) return null;
-  return { id: data.user.id, email: data.user.email ?? "" };
+export async function currentCustomer() {
+  const session = await finishCustomerSession();
+  return session ? { id: session.id, email: session.email } : null;
 }
 
 export async function changePassword(newPassword: string) {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
-  return error ? { ok: false as const, error: error.message } : { ok: true as const };
+  return error ? { ok: false as const, error: friendlyAuthError(error.message) } : { ok: true as const };
 }

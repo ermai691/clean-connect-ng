@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { passwordChecks, passwordScore, resetPassword, validateResetToken, type Role } from "@/lib/auth";
+import { passwordChecks, passwordScore, type Role } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { hasRecoverySession, signOutAdmin, updateAdminPassword } from "@/lib/admin-auth";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
-const searchSchema = z.object({ token: z.string().optional() });
+const searchSchema = z.object({ token: z.string().optional(), role: z.enum(["customer", "provider", "admin"]).optional() });
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPassword() {
-  const { token = "" } = Route.useSearch();
+  const { token = "", role = "customer" as Role } = Route.useSearch();
   const navigate = useNavigate();
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -41,7 +42,6 @@ function ResetPassword() {
     };
   }, []);
 
-  const valid = useMemo(() => validateResetToken(token), [token]);
   const checks = passwordChecks(pw);
   const score = passwordScore(pw);
 
@@ -51,23 +51,28 @@ function ResetPassword() {
     if (score < 5) return setError("Password must be 8+ characters with upper, lower, number and special character.");
     if (pw !== confirm) return setError("Passwords do not match.");
 
-    if (recovery) {
-      setBusy(true);
+    if (!recovery) {
+      return setError("This reset link is invalid or has expired. Please request a new one.");
+    }
+
+    setBusy(true);
+    if (role === "admin") {
       const res = await updateAdminPassword(pw);
       if (!res.ok) {
         setBusy(false);
         return setError(res.error);
       }
-      // Force a fresh sign-in with the new password.
       await signOutAdmin();
-      setBusy(false);
-      setDone("admin");
-      return;
+    } else {
+      const { error: updateError } = await supabase.auth.updateUser({ password: pw });
+      if (updateError) {
+        setBusy(false);
+        return setError(updateError.message);
+      }
+      await supabase.auth.signOut();
     }
-
-    const res = resetPassword(token, pw);
-    if (!res.ok) return setError(res.error);
-    setDone(res.role);
+    setBusy(false);
+    setDone(role);
   };
 
   if (recovery === null) {
@@ -106,10 +111,10 @@ function ResetPassword() {
         </Link>
         <h1>Set a new password</h1>
 
-        {!recovery && !valid.ok ? (
+        {!recovery ? (
           <>
             <p className="sub">This reset link is invalid or has expired. Please request a new one.</p>
-            <Link to="/forgot-password" search={{ role: "customer" as Role }} className="btn btn-primary">
+              <Link to="/forgot-password" search={{ role }} className="btn btn-primary">
               Request new link
             </Link>
           </>

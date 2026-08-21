@@ -11,7 +11,7 @@ import {
   type Role,
 } from "@/lib/auth";
 import { currentAdmin, signInAdmin } from "@/lib/admin-auth";
-import { signInCustomer, signUpCustomer } from "@/lib/customer-auth";
+import { currentCustomer, resendCustomerConfirmation, signInCustomer, signInWithGoogle, signUpCustomer } from "@/lib/customer-auth";
 import { registerCustomer } from "@/lib/platform-data";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
@@ -58,13 +58,20 @@ function AuthPage() {
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Already signed in → straight to the right dashboard.
+  // Supabase Auth is the source of truth. The local mirror is only a navigation convenience.
   useEffect(() => {
     if (role === "admin") {
       void currentAdmin().then((admin) => {
         if (admin) navigate({ to: "/admin", replace: true });
+      });
+      return;
+    }
+    if (role === "customer") {
+      void currentCustomer().then((user) => {
+        if (user) navigate({ to: "/customer", replace: true });
       });
       return;
     }
@@ -78,6 +85,7 @@ function AuthPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setNotice("");
 
     // Administrator login runs against the real backend auth + admin role check.
     if (role === "admin") {
@@ -95,9 +103,13 @@ function AuthPage() {
       const res =
         mode === "signup"
           ? await signUpCustomer({ name, email, password })
-          : await signInCustomer(email, password, remember);
+          : await signInCustomer(email, password);
       setBusy(false);
-      if (!res.ok) return setError(res.error);
+      if (!res.ok) {
+        if ("needsConfirmation" in res && res.needsConfirmation) setNotice(res.error);
+        else setError(res.error);
+        return;
+      }
       navigate({ to: "/customer", replace: true });
       return;
     }
@@ -222,15 +234,53 @@ function AuthPage() {
             </Link>
           </div>
 
+          {notice && (
+            <p className="auth-success" role="status">
+              <i className="fas fa-envelope" /> {notice}
+            </p>
+          )}
           {error && (
             <p className="auth-error" role="alert">
               <i className="fas fa-circle-exclamation" /> {error}
             </p>
           )}
 
+          {role === "customer" && mode === "login" && (
+            <button
+              className="btn btn-secondary"
+              type="button"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                const res = await signInWithGoogle();
+                setBusy(false);
+                if (!res.ok) setError(res.error);
+              }}
+            >
+              <i className="fab fa-google" /> Continue with Google
+            </button>
+          )}
+
           <button className="btn btn-primary" type="submit" disabled={busy}>
             {busy ? <><i className="fas fa-spinner fa-spin" /> Signing in…</> : mode === "signup" ? "Create Account" : "Log In"}
           </button>
+          {role === "customer" && mode === "login" && (
+            <button
+              className="auth-inline-link"
+              type="button"
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                const res = await resendCustomerConfirmation(email);
+                setBusy(false);
+                if (res.ok) setNotice(res.message);
+                else setError(res.error);
+              }}
+            >
+              Resend verification email
+            </button>
+          )}
         </form>
 
         <div className="auth-alt">

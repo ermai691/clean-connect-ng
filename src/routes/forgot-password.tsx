@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { requestPasswordReset, type Role } from "@/lib/auth";
+import { type Role } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { requestAdminPasswordSetup } from "@/lib/admin-auth.functions";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
@@ -43,8 +44,16 @@ function ForgotPassword() {
       setSent(true);
       return;
     }
-    const res = requestPasswordReset(identifier, role);
-    setToken(res.token);
+    setBusy(true);
+    try {
+      await supabase.auth.resetPasswordForEmail(identifier.trim().toLowerCase(), {
+        redirectTo: `${window.location.origin}/reset-password?role=customer`,
+      });
+    } catch {
+      // Keep the response generic to avoid account enumeration.
+    }
+    setBusy(false);
+    setToken(null);
     setSent(true);
   };
 
@@ -64,20 +73,20 @@ function ForgotPassword() {
             <p className="sub">
               {role === "admin"
                 ? "Enter your administrator email address and we'll email you a secure link to create a new password."
-                : "Enter your registered email address or phone number, and we'll help you reset your password."}
+                : "Enter your registered email address and we'll send secure reset instructions."}
             </p>
             <form onSubmit={onSubmit}>
               <div className="field">
                 <label htmlFor="cc-identifier">
-                  {role === "admin" ? "Administrator Email" : "Email or Phone Number"}
+                  {role === "admin" ? "Administrator Email" : "Email"}
                 </label>
                 <input
                   id="cc-identifier"
-                  type={role === "admin" ? "email" : "text"}
+                  type="email"
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder={role === "admin" ? "you@example.com" : "you@example.com or 080..."}
+                  placeholder="you@example.com"
                   autoComplete="email"
                 />
               </div>
@@ -85,7 +94,7 @@ function ForgotPassword() {
                 {busy ? (
                   <><i className="fas fa-spinner fa-spin" /> Sending…</>
                 ) : (
-                  <><i className="fas fa-paper-plane" /> {role === "admin" ? "Send Reset Link" : "Send Reset Link / OTP"}</>
+                  <><i className="fas fa-paper-plane" /> Send Reset Link</>
                 )}
               </button>
             </form>
@@ -96,9 +105,9 @@ function ForgotPassword() {
             <p className="sub">
               {role === "admin"
                 ? "If that address is registered as an administrator, a secure password-reset email is on its way. Open the link to create your new password, then return here to log in."
-                : "If an account exists with that email or phone number, you'll receive reset instructions. The link expires in 15 minutes."}
+                : "If an account exists with that email, secure reset instructions are on their way. Open the link to choose a new password."}
             </p>
-            {token && (
+            {role === "admin" && token && (
               <button
                 className="btn btn-primary"
                 onClick={() => navigate({ to: "/reset-password", search: { token } })}

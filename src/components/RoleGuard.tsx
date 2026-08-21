@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { dashboardPathFor, getUser, type Role, type User } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { currentCustomer } from "@/lib/customer-auth";
 import { currentAdmin } from "@/lib/admin-auth";
 
 /**
@@ -37,6 +39,15 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
         return;
       }
 
+      if (role === "customer") {
+        const customer = await currentCustomer();
+        if (!active) return;
+        const user = customer ? { name: "Customer", email: customer.email, role: "customer" as const } : null;
+        setState({ ready: true, user, denied: false });
+        if (!user) navigate({ to: "/auth/$role", params: { role }, replace: true });
+        return;
+      }
+
       const user = getUser();
       if (!active) return;
       setState({ ready: true, user, denied: false });
@@ -46,9 +57,11 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
     void sync();
     const onChange = () => void sync();
     window.addEventListener("cc-auth-change", onChange);
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => void sync());
     return () => {
       active = false;
       window.removeEventListener("cc-auth-change", onChange);
+      authListener.subscription.unsubscribe();
     };
   }, [navigate, role]);
 
