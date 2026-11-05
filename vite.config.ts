@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // This app deploys to Netlify. Without this, nitro silently defaults to
+  // the "cloudflare-module" preset, which produces a Cloudflare Worker
+  // bundle that Netlify's build/runtime doesn't know how to run.
+  nitro: {
+    preset: "netlify",
+  },
 });

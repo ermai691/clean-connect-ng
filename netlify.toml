@@ -1,0 +1,8 @@
+# Explicit build command. There was previously no netlify.toml at all, so
+# Nitro's zero-config default (Cloudflare Worker output) was silently used
+# instead of a Netlify-compatible build -- see vite.config.ts for the
+# corresponding `nitro: { preset: "netlify" }` fix.
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
