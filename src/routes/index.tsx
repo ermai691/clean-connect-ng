@@ -16,12 +16,12 @@ type Service = {
   image: string;
   desc: string;
   long: string;
-  price: number; // starting price NGN
+  price: number;
   duration: string;
   rating: number;
   reviews: number;
   included: string[];
-  quoteOnly?: boolean; // true = Request a Quote → WhatsApp
+  quoteOnly?: boolean;
 };
 
 const services: Service[] = [
@@ -30,8 +30,7 @@ const services: Service[] = [
     name: "House Cleaning",
     category: "Home Cleaning",
     icon: "fa-house",
-    image:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=70",
     desc: "Regular top-to-bottom home cleaning by trusted local pros.",
     long: "A thorough refresh for your home — dusting, mopping, kitchen and bathroom care, and trash removal.",
     price: 15000,
@@ -45,8 +44,7 @@ const services: Service[] = [
     name: "Deep Cleaning",
     category: "Home Cleaning",
     icon: "fa-spray-can-sparkles",
-    image:
-      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=70",
     desc: "Detailed cleaning of every corner, appliance and hard-to-reach area.",
     long: "Perfect for seasonal resets. We tackle grime, limescale, and neglected surfaces to restore a like-new feel.",
     price: 35000,
@@ -60,8 +58,7 @@ const services: Service[] = [
     name: "Move-in Cleaning",
     category: "Home Cleaning",
     icon: "fa-truck-ramp-box",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70",
     desc: "Start fresh in your new home — sparkling from day one.",
     long: "Move-in ready. We deep clean the empty space before your furniture and belongings arrive.",
     price: 40000,
@@ -75,8 +72,7 @@ const services: Service[] = [
     name: "Move-out Cleaning",
     category: "Home Cleaning",
     icon: "fa-boxes-packing",
-    image:
-      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=70",
     desc: "Get your deposit back with a landlord-grade clean.",
     long: "Detailed clean designed to meet inspection standards for handover.",
     price: 42000,
@@ -90,8 +86,7 @@ const services: Service[] = [
     name: "Office Cleaning",
     category: "Commercial",
     icon: "fa-building",
-    image:
-      "/office-cleaning.png",
+    image: "/office-cleaning.png",
     desc: "Keep your workspace pristine and your team productive.",
     long: "Recurring or one-off office cleaning with discreet, trained staff.",
     price: 25000,
@@ -106,8 +101,7 @@ const services: Service[] = [
     name: "Post Construction",
     category: "Specialty",
     icon: "fa-helmet-safety",
-    image:
-      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=70",
     desc: "Dust, debris and residue removal after renovations.",
     long: "Heavy-duty cleaning after construction or renovation projects. Safe removal of dust and residue.",
     price: 60000,
@@ -122,8 +116,7 @@ const services: Service[] = [
     name: "Laundry & Ironing",
     category: "Laundry",
     icon: "fa-shirt",
-    image:
-      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1200&q=70",
     desc: "Pick-up, wash, iron and delivery — as fast as 24 hours.",
     long: "Full-service laundry with fabric-safe detergents and crisp ironing. Pick-up and delivery included.",
     price: 8000,
@@ -137,8 +130,7 @@ const services: Service[] = [
     name: "Sofa Cleaning",
     category: "Home Cleaning",
     icon: "fa-couch",
-    image:
-      "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1200&q=70",
     desc: "Deep upholstery cleaning that removes stains and odors.",
     long: "Hot-water extraction and fabric-safe treatment to bring your sofa back to life.",
     price: 20000,
@@ -152,8 +144,7 @@ const services: Service[] = [
     name: "Fumigation & Pest",
     category: "Specialty",
     icon: "fa-bug-slash",
-    image:
-      "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=1200&q=70",
     desc: "Certified pest control with pet and family-safe products.",
     long: "Certified fumigation for homes and businesses, targeting common pests safely.",
     price: 30000,
@@ -168,8 +159,7 @@ const services: Service[] = [
     name: "Airbnb Cleaning",
     category: "Home Cleaning",
     icon: "fa-key",
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=70",
     desc: "Turnover cleaning between guest stays — fast and reliable.",
     long: "Guest-ready turnovers with linen swap and restock, timed for check-in.",
     price: 18000,
@@ -183,8 +173,7 @@ const services: Service[] = [
     name: "Event Cleanup",
     category: "Specialty",
     icon: "fa-champagne-glasses",
-    image:
-      "/event-cleaning.png",
+    image: "/event-cleaning.png",
     desc: "Before or after your event — leave the mess to us.",
     long: "Fast, discreet event cleanup crews for parties, weddings, and corporate events.",
     price: 45000,
@@ -199,8 +188,7 @@ const services: Service[] = [
     name: "Commercial Cleaning",
     category: "Commercial",
     icon: "fa-shop",
-    image:
-      "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1200&q=70",
     desc: "Recurring cleans for retail, gyms and commercial spaces.",
     long: "Custom commercial cleaning contracts with dedicated account management.",
     price: 50000,
@@ -215,8 +203,7 @@ const services: Service[] = [
     name: "School Cleaning",
     category: "Commercial",
     icon: "fa-school",
-    image:
-      "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=70",
     desc: "Classroom, playground and cafeteria cleaning specialists.",
     long: "Child-safe cleaning products and vetted staff for schools and daycares.",
     price: 55000,
@@ -231,8 +218,7 @@ const services: Service[] = [
     name: "Hospital Cleaning",
     category: "Commercial",
     icon: "fa-hospital",
-    image:
-      "https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=1200&q=70",
     desc: "Hospital-grade cleaning with strict infection control.",
     long: "Trained crews using hospital-grade disinfectants and protocols.",
     price: 80000,
@@ -247,8 +233,7 @@ const services: Service[] = [
     name: "Restaurant Cleaning",
     category: "Commercial",
     icon: "fa-burger",
-    image:
-      "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=70",
     desc: "Kitchen, dining and back-of-house cleans overnight.",
     long: "Health-code compliant restaurant cleaning, scheduled around service.",
     price: 40000,
@@ -263,8 +248,7 @@ const services: Service[] = [
     name: "Warehouse Cleaning",
     category: "Commercial",
     icon: "fa-warehouse",
-    image:
-      "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1200&q=70",
+    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1200&q=70",
     desc: "Large-scale floor and industrial cleaning services.",
     long: "Heavy-duty machinery and crews for warehouses and industrial spaces.",
     price: 90000,
@@ -280,7 +264,6 @@ function ngn(n: number) {
   return "₦" + n.toLocaleString("en-NG");
 }
 
-// ---------- Home ----------
 const categories = ["All", "Home Cleaning", "Commercial", "Laundry", "Specialty"];
 
 function Home() {
@@ -301,7 +284,6 @@ function Home() {
     return matchesCategory && matchesSearch;
   });
 
-  // Reveal on scroll
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal");
     const io = new IntersectionObserver(
@@ -330,7 +312,7 @@ function Home() {
     setModalService(s);
   };
 
-  const WHATSAPP_NUMBER = "2349078870211"; // 09078870211
+  const WHATSAPP_NUMBER = "2349078870211";
 
   const handleBook = (s: Service) => {
     if (s.quoteOnly) {
@@ -347,12 +329,9 @@ function Home() {
     navigate({ to: "/booking", search: { service: s.id } });
   };
 
-
   return (
     <>
       <Nav />
-
-      {/* ---------- Hero ---------- */}
       <header className="hero">
         <div className="container-x hero-grid">
           <div>
@@ -389,7 +368,6 @@ function Home() {
           </div>
           <div className="hero-visual">
             <div className="hero-card">
-              {/* Replace with your own hero image */}
               <img
                 src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=70"
                 alt="Professional cleaner at work"
@@ -416,7 +394,6 @@ function Home() {
         </div>
       </header>
 
-      {/* ---------- Services ---------- */}
       <section id="services">
         <div className="container-x">
           <h2 className="section-title reveal">Our Services</h2>
@@ -509,8 +486,47 @@ function Home() {
         </div>
       </section>
 
-      {/* Modal and rest of the page remain the same - truncated for this update but full file was prepared */}
-      {/* The full updated file includes the modal with Request a Quote support */}
+      {/* Modal */}
+      <div className={`modal-overlay ${modalService ? "open" : ""}`} onClick={() => setModalService(null)}>
+        {modalService && (
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setModalService(null)}>
+              <i className="fas fa-xmark" />
+            </button>
+            <img src={modalService.image} alt={modalService.name} className="modal-hero" />
+            <div className="modal-body">
+              <div className="modal-icon">
+                <i className={`fas ${modalService.icon}`} />
+              </div>
+              <h2>{modalService.name}</h2>
+              <p className="modal-desc">{modalService.long}</p>
+              <h4>What's included</h4>
+              <ul className="modal-includes">
+                {modalService.included.map((i) => (
+                  <li key={i}><i className="fas fa-check" /> {i}</li>
+                ))}
+              </ul>
+              <div className="modal-meta">
+                <div><span>Starting from</span><span>{ngn(modalService.price)}</span></div>
+                <div><span>Duration</span><span>{modalService.duration}</span></div>
+                <div><span>Rating</span><span>{modalService.rating} ({modalService.reviews}+ reviews)</span></div>
+              </div>
+              <div className="modal-actions">
+                <button className="btn btn-primary" onClick={() => { const s = modalService; if (s) handleBook(s); }}>
+                  <i className={`fas ${modalService.quoteOnly ? "fa-comments" : "fa-calendar-check"}`} />{" "}
+                  {modalService.quoteOnly ? "Request a Quote on WhatsApp" : `Book Now — ${ngn(modalService.price)}`}
+                </button>
+                <a href="https://wa.me/2349078870211" target="_blank" rel="noreferrer" className="btn btn-accent">
+                  <i className="fab fa-whatsapp" /> Chat Support
+                </a>
+                <button className="btn btn-outline" onClick={() => setModalService(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Footer />
     </>
   );
 }
