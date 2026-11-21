@@ -28,32 +28,49 @@ function ForgotPassword() {
   const [identifier, setIdentifier] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    const email = identifier.trim().toLowerCase();
+    if (!email) return;
+
+    // Admin uses a dedicated server function (if configured)
     if (role === "admin") {
       setBusy(true);
       try {
-        await requestAdminPasswordSetup({ data: { email: identifier.trim() } });
+        await requestAdminPasswordSetup({ data: { email } });
       } catch {
-        /* generic response either way — no account enumeration */
+        /* generic response — no account enumeration */
+      }
+      // Also send the standard Supabase reset so the same /reset-password page works
+      try {
+        await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password?role=admin`,
+        });
+      } catch {
+        /* ignore */
       }
       setBusy(false);
-      setToken(null);
       setSent(true);
       return;
     }
+
+    // Customer + Provider: real Supabase password reset
     setBusy(true);
     try {
-      await supabase.auth.resetPasswordForEmail(identifier.trim().toLowerCase(), {
-        redirectTo: `${window.location.origin}/reset-password?role=customer`,
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password?role=${role}`,
       });
-    } catch {
-      // Keep the response generic to avoid account enumeration.
+      if (resetError) {
+        // Still show success UI to avoid account enumeration, but log for debugging
+        console.warn("[forgot-password]", resetError.message);
+      }
+    } catch (err) {
+      console.warn("[forgot-password]", err);
     }
     setBusy(false);
-    setToken(null);
     setSent(true);
   };
 
@@ -69,17 +86,19 @@ function ForgotPassword() {
 
         {!sent ? (
           <>
-            <h1>{role === "admin" ? "Administrator Password Recovery" : "Forgot Your Password?"}</h1>
-            <p className="sub">
+            <h1>
               {role === "admin"
-                ? "Enter your administrator email address and we'll email you a secure link to create a new password."
-                : "Enter your registered email address and we'll send secure reset instructions."}
+                ? "Administrator Password Recovery"
+                : role === "provider"
+                  ? "Provider Password Recovery"
+                  : "Forgot Your Password?"}
+            </h1>
+            <p className="sub">
+              Enter your registered email address and we'll send a secure link to create a new password.
             </p>
             <form onSubmit={onSubmit}>
               <div className="field">
-                <label htmlFor="cc-identifier">
-                  {role === "admin" ? "Administrator Email" : "Email"}
-                </label>
+                <label htmlFor="cc-identifier">Email</label>
                 <input
                   id="cc-identifier"
                   type="email"
@@ -90,11 +109,20 @@ function ForgotPassword() {
                   autoComplete="email"
                 />
               </div>
+              {error && (
+                <p className="auth-error" role="alert">
+                  <i className="fas fa-circle-exclamation" /> {error}
+                </p>
+              )}
               <button className="btn btn-primary" type="submit" disabled={busy}>
                 {busy ? (
-                  <><i className="fas fa-spinner fa-spin" /> Sending…</>
+                  <>
+                    <i className="fas fa-spinner fa-spin" /> Sending…
+                  </>
                 ) : (
-                  <><i className="fas fa-paper-plane" /> Send Reset Link</>
+                  <>
+                    <i className="fas fa-paper-plane" /> Send Reset Link
+                  </>
                 )}
               </button>
             </form>
@@ -103,23 +131,19 @@ function ForgotPassword() {
           <>
             <h1>Check your inbox</h1>
             <p className="sub">
-              {role === "admin"
-                ? "If that address is registered as an administrator, a secure password-reset email is on its way. Open the link to create your new password, then return here to log in."
-                : "If an account exists with that email, secure reset instructions are on their way. Open the link to choose a new password."}
+              If an account exists with that email, a password-reset link is on its way.
+              Open the link on this same device/browser to choose a new password.
             </p>
-            {role === "admin" && token && (
-              <button
-                className="btn btn-primary"
-                onClick={() => navigate({ to: "/reset-password", search: { token } })}
-              >
-                <i className="fas fa-key" /> Continue to reset password
-              </button>
-            )}
+            <p className="sub" style={{ fontSize: "0.9rem", marginTop: "0.75rem" }}>
+              The link expires after about 1 hour. If you don't see the email, check spam/junk.
+            </p>
           </>
         )}
 
         <div className="auth-alt">
-          <Link to="/auth/$role" params={{ role }}>← Back to login</Link>
+          <Link to="/auth/$role" params={{ role }}>
+            ← Back to login
+          </Link>
         </div>
       </div>
     </div>
