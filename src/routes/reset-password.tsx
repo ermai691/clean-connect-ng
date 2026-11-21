@@ -1,12 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { passwordChecks, passwordScore, type Role } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { hasRecoverySession, signOutAdmin, updateAdminPassword } from "@/lib/admin-auth";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
-const searchSchema = z.object({ token: z.string().optional(), role: z.enum(["customer", "provider", "admin"]).optional() });
+const searchSchema = z.object({
+  token: z.string().optional(),
+  role: z.enum(["customer", "provider", "admin"]).optional(),
+  code: z.string().optional(),
+});
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -21,7 +25,7 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPassword() {
-  const { token = "", role = "customer" as Role } = Route.useSearch();
+  const { role = "customer" as Role } = Route.useSearch();
   const navigate = useNavigate();
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -34,9 +38,15 @@ function ResetPassword() {
 
   useEffect(() => {
     let active = true;
-    void hasRecoverySession().then((ok) => {
-      if (active) setRecovery(ok);
-    });
+    void (async () => {
+      try {
+        const ok = await hasRecoverySession();
+        if (active) setRecovery(ok);
+      } catch (e) {
+        console.warn("[reset-password] recovery check failed", e);
+        if (active) setRecovery(false);
+      }
+    })();
     return () => {
       active = false;
     };
@@ -48,7 +58,9 @@ function ResetPassword() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (score < 5) return setError("Password must be 8+ characters with upper, lower, number and special character.");
+    if (score < 5) {
+      return setError("Password must be 8+ characters with upper, lower, number and special character.");
+    }
     if (pw !== confirm) return setError("Passwords do not match.");
 
     if (!recovery) {
@@ -56,30 +68,37 @@ function ResetPassword() {
     }
 
     setBusy(true);
-    if (role === "admin") {
-      const res = await updateAdminPassword(pw);
-      if (!res.ok) {
-        setBusy(false);
-        return setError(res.error);
+    try {
+      if (role === "admin") {
+        const res = await updateAdminPassword(pw);
+        if (!res.ok) {
+          setBusy(false);
+          return setError(res.error);
+        }
+        await signOutAdmin();
+      } else {
+        const { error: updateError } = await supabase.auth.updateUser({ password: pw });
+        if (updateError) {
+          setBusy(false);
+          return setError(updateError.message);
+        }
+        await supabase.auth.signOut();
       }
-      await signOutAdmin();
-    } else {
-      const { error: updateError } = await supabase.auth.updateUser({ password: pw });
-      if (updateError) {
-        setBusy(false);
-        return setError(updateError.message);
-      }
-      await supabase.auth.signOut();
+      setDone(role);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update password.");
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
-    setDone(role);
   };
 
   if (recovery === null) {
     return (
       <div className="auth-shell">
         <div className="auth-card" style={{ textAlign: "center" }}>
-          <p className="sub"><i className="fas fa-spinner fa-spin" /> Verifying your secure link…</p>
+          <p className="sub">
+            <i className="fas fa-spinner fa-spin" /> Verifying your secure link…
+          </p>
         </div>
       </div>
     );
@@ -89,10 +108,15 @@ function ResetPassword() {
     return (
       <div className="auth-shell">
         <div className="auth-card" style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2.4rem", color: "#22C55E" }}><i className="fas fa-circle-check" /></div>
+          <div style={{ fontSize: "2.4rem", color: "#22C55E" }}>
+            <i className="fas fa-circle-check" />
+          </div>
           <h1>Password Reset Successful</h1>
-          <p className="sub">Your password has been updated securely. You can now log in with it.</p>
-          <button className="btn btn-primary" onClick={() => navigate({ to: "/auth/$role", params: { role: done } })}>
+          <p className="sub">Your password has been updated. You can now log in with it.</p>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate({ to: "/auth/$role", params: { role: done } })}
+          >
             Go to Login
           </button>
         </div>
@@ -113,9 +137,16 @@ function ResetPassword() {
 
         {!recovery ? (
           <>
-            <p className="sub">This reset link is invalid or has expired. Please request a new one.</p>
-              <Link to="/forgot-password" search={{ role }} className="btn btn-primary">
-              Request new link
+            <p className="sub">
+              This reset link is invalid or has expired. This usually happens when:
+            </p>
+            <ul style={{ textAlign: "left", color: "var(--muted-foreground)", fontSize: "0.95rem", marginBottom: "1.25rem" }}>
+              <li>The link was already used</li>
+              <li>The link is older than about 1 hour</li>
+              <li>You opened the link in a different browser than the one you requested from</li>
+            </ul>
+            <Link to="/forgot-password" search={{ role }} className="btn btn-primary">
+              Request a new link
             </Link>
           </>
         ) : (
@@ -143,7 +174,9 @@ function ResetPassword() {
                   </button>
                 </div>
                 <div className="pw-meter" aria-live="polite">
-                  <div className="pw-bar"><span style={{ width: `${(score / 5) * 100}%` }} data-score={score} /></div>
+                  <div className="pw-bar">
+                    <span style={{ width: `${(score / 5) * 100}%` }} data-score={score} />
+                  </div>
                   <ul className="pw-rules">
                     <li className={checks.length ? "ok" : ""}>8+ characters</li>
                     <li className={checks.upper ? "ok" : ""}>Uppercase</li>
@@ -164,9 +197,19 @@ function ResetPassword() {
                   autoComplete="new-password"
                 />
               </div>
-              {error && <p className="auth-error" role="alert"><i className="fas fa-circle-exclamation" /> {error}</p>}
+              {error && (
+                <p className="auth-error" role="alert">
+                  <i className="fas fa-circle-exclamation" /> {error}
+                </p>
+              )}
               <button className="btn btn-primary" type="submit" disabled={busy}>
-                {busy ? <><i className="fas fa-spinner fa-spin" /> Updating…</> : "Update Password"}
+                {busy ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin" /> Updating…
+                  </>
+                ) : (
+                  "Update Password"
+                )}
               </button>
             </form>
           </>
