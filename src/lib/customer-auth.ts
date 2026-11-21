@@ -18,13 +18,7 @@ function friendlyAuthError(message: string) {
 }
 
 function mirrorSession(name: string, email: string) {
-  // Navigation convenience only. Supabase Auth remains the source of truth.
   setLocalUser({ name, email, role: "customer" }, true);
-}
-
-async function provisionRole(fullName?: string) {
-  const result = await provisionCustomerRole({ data: { fullName: fullName?.trim() || undefined } });
-  return result.ok ? result : { ok: false as const, error: result.error };
 }
 
 export type CustomerProfile = {
@@ -37,8 +31,63 @@ export type CustomerProfile = {
   [key: string]: unknown;
 };
 
+/**
+ * Ensure the signed-in user has a customer role in user_roles.
+ * 1) Check if role already exists
+ * 2) Try client-side insert (RLS allows self-claim of non-admin roles)
+ * 3) Fall back to server function with service role
+ */
+async function ensureCustomerRole(fullName?: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) return { ok: false, error: "You must be signed in." };
+  if (!user.email_confirmed_at) {
+    return { ok: false, error: "Please confirm your email before continuing." };
+  }
+
+  // Already has role?
+  const { data: existing } = await supabase
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("role", "customer")
+    .maybeSingle();
+
+  if (existing) return { ok: true };
+
+  // Client-side claim (works when INSERT grant + claim policy are in place)
+  const { error: insertError } = await supabase.from("user_roles").insert({
+    user_id: user.id,
+    role: "customer",
+  });
+
+  if (!insertError) return { ok: true };
+
+  // Duplicate is fine (race)
+  if (/duplicate|unique/i.test(insertError.message)) return { ok: true };
+
+  // Server-side fallback
+  try {
+    const result = await provisionCustomerRole({
+      data: { fullName: fullName?.trim() || undefined },
+    });
+    if (result.ok) return { ok: true };
+    return {
+      ok: false,
+      error: result.error || insertError.message || "Could not set up your customer account.",
+    };
+  } catch {
+    return {
+      ok: false,
+      error:
+        insertError.message ||
+        "Could not set up your customer account. Please try again or contact support.",
+    };
+  }
+}
+
 export async function ensureCustomerRecords(fullName?: string): Promise<CustomerProfile | null> {
-  await provisionRole(fullName);
+  await ensureCustomerRole(fullName);
   return null;
 }
 
@@ -60,7 +109,6 @@ export async function signUpCustomer(input: { name: string; email: string; passw
   });
   if (error) return { ok: false as const, error: friendlyAuthError(error.message) };
 
-  // Email confirmation required — this is expected, not a failure
   if (!data.session) {
     return {
       ok: false as const,
@@ -70,8 +118,7 @@ export async function signUpCustomer(input: { name: string; email: string; passw
     };
   }
 
-  // Session already active (confirmations disabled in Supabase)
-  const role = await provisionRole(name);
+  const role = await ensureCustomerRole(name);
   if (!role.ok) return { ok: false as const, error: role.error };
   mirrorSession(name, data.user?.email ?? email);
   return { ok: true as const };
@@ -89,7 +136,8 @@ export async function resendCustomerConfirmation(email: string) {
     ? { ok: false as const, error: friendlyAuthError(error.message) }
     : {
         ok: true as const,
-        message: "If the account needs confirmation, a new verification email has been sent. Check your inbox and spam folder.",
+        message:
+          "If the account needs confirmation, a new verification email has been sent. Check inbox and spam.",
       };
 }
 
@@ -111,13 +159,14 @@ export async function signInCustomer(email: string, password: string) {
     };
   }
 
-  const role = await provisionRole(
+  const role = await ensureCustomerRole(
     (data.user.user_metadata?.["full_name"] as string | undefined) ?? undefined,
   );
   if (!role.ok) {
     await supabase.auth.signOut();
     return { ok: false as const, error: role.error };
   }
+
   mirrorSession(
     (data.user.user_metadata?.["full_name"] as string | undefined) ?? "Customer",
     data.user.email ?? value,
@@ -125,19 +174,14 @@ export async function signInCustomer(email: string, password: string) {
   return { ok: true as const };
 }
 
-/**
- * Called when landing on /auth/customer (including after email confirmation link).
- * Processes URL tokens, ensures email is confirmed, provisions role, mirrors session.
- */
 export async function finishCustomerSession() {
-  // Process confirmation / OAuth tokens from the URL if present
   await establishSessionFromUrl();
 
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
   if (!data.user.email_confirmed_at) return null;
 
-  const role = await provisionRole(
+  const role = await ensureCustomerRole(
     (data.user.user_metadata?.["full_name"] as string | undefined) ?? undefined,
   );
   if (!role.ok) return null;
