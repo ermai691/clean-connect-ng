@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -11,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { consumeAuthLink } from "@/lib/auth-session";
 
 function NotFoundComponent() {
   return (
@@ -105,11 +107,43 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Email links often land on the site root. Consume tokens here, then route. */
+function AuthLinkBridge() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    const hashParams = new URLSearchParams(hash);
+    const type = hashParams.get("type");
+    const path = window.location.pathname;
+    const hasLink = hash.includes("access_token") || window.location.search.includes("code=") || hash.includes("error");
+    if (!hasLink) return;
+
+    void consumeAuthLink().then((result) => {
+      if (result.error) {
+        sessionStorage.setItem("cc_auth_link_error", result.error);
+        if (!path.startsWith("/auth/") && !path.startsWith("/reset-password")) {
+          navigate({ to: "/auth/$role", params: { role: "customer" }, replace: true });
+        }
+        return;
+      }
+      if (type === "recovery" && !path.startsWith("/reset-password")) {
+        navigate({ to: "/reset-password", search: { role: "customer" }, replace: true });
+        return;
+      }
+      if (result.session && (type === "signup" || type === "email" || type === "magiclink") && path === "/") {
+        navigate({ to: "/auth/$role", params: { role: "customer" }, replace: true });
+      }
+    });
+  }, [navigate]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthLinkBridge />
       <Outlet />
     </QueryClientProvider>
   );
