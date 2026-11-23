@@ -1,18 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  dashboardPathFor,
-  getUser,
-  passwordChecks,
-  passwordScore,
-  setUser,
-  signIn,
-  signUp,
-  type Role,
-} from "@/lib/auth";
+import { passwordChecks, passwordScore, type Role } from "@/lib/auth";
 import { currentAdmin, signInAdmin } from "@/lib/admin-auth";
-import { currentCustomer, resendCustomerConfirmation, signInCustomer, signInWithGoogle, signUpCustomer } from "@/lib/customer-auth";
-import { registerCustomer } from "@/lib/platform-data";
+import {
+  currentCustomer,
+  resendCustomerConfirmation,
+  signInCustomer,
+  signInWithGoogle,
+  signUpCustomer,
+} from "@/lib/customer-auth";
+import { currentProvider, signInProvider } from "@/lib/provider-auth";
 import logoMark from "@/assets/cleanconnect-mark.png.asset.json";
 
 export const Route = createFileRoute("/auth/$role")({
@@ -29,7 +26,7 @@ const COPY: Record<Role, { title: string; sub: string; icon: string; canSignUp: 
   },
   provider: {
     title: "Provider Login",
-    sub: "Log in with the email and password you registered with to manage jobs and earnings.",
+    sub: "Log in with the email and password on your approved provider account.",
     icon: "fa-user-tie",
     canSignUp: false,
   },
@@ -53,15 +50,22 @@ function AuthPage() {
 
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Supabase Auth is the source of truth. The local mirror is only a navigation convenience.
+  useEffect(() => {
+    const linkError = sessionStorage.getItem("cc_auth_link_error");
+    if (linkError) {
+      sessionStorage.removeItem("cc_auth_link_error");
+      setError(linkError);
+    }
+  }, []);
+
   useEffect(() => {
     if (role === "admin") {
       void currentAdmin().then((admin) => {
@@ -69,14 +73,15 @@ function AuthPage() {
       });
       return;
     }
-    if (role === "customer") {
-      void currentCustomer().then((user) => {
-        if (user) navigate({ to: "/customer", replace: true });
+    if (role === "provider") {
+      void currentProvider().then((user) => {
+        if (user) navigate({ to: "/provider", replace: true });
       });
       return;
     }
-    const user = getUser();
-    if (user) navigate({ to: dashboardPathFor(user.role), replace: true });
+    void currentCustomer().then((user) => {
+      if (user) navigate({ to: "/customer", replace: true });
+    });
   }, [navigate, role]);
 
   const checks = useMemo(() => passwordChecks(password), [password]);
@@ -87,7 +92,6 @@ function AuthPage() {
     setError("");
     setNotice("");
 
-    // Administrator login runs against the real backend auth + admin role check.
     if (role === "admin") {
       setBusy(true);
       const res = await signInAdmin(email, password);
@@ -97,38 +101,27 @@ function AuthPage() {
       return;
     }
 
-    // Customers authenticate against the real backend (same system as bookings/wallet).
-    if (role === "customer") {
+    if (role === "provider") {
       setBusy(true);
-      const res =
-        mode === "signup"
-          ? await signUpCustomer({ name, email, password })
-          : await signInCustomer(email, password);
+      const res = await signInProvider(email, password);
       setBusy(false);
-      if (!res.ok) {
-        if ("needsConfirmation" in res && res.needsConfirmation) setNotice(res.error);
-        else setError(res.error);
-        return;
-      }
-      navigate({ to: "/customer", replace: true });
+      if (!res.ok) return setError(res.error);
+      navigate({ to: "/provider", replace: true });
       return;
     }
 
-    if (mode === "signup") {
-      if (score < 5) {
-        setError("Password must be 8+ characters with upper, lower, number and special character.");
-        return;
-      }
-      const res = signUp({ name, email, password, role: role as "customer" | "provider" });
-      if (!res.ok) return setError(res.error);
-      setUser(res.user, remember);
-      navigate({ to: dashboardPathFor(role), replace: true });
+    setBusy(true);
+    const res =
+      mode === "signup"
+        ? await signUpCustomer({ name, email, password, phone })
+        : await signInCustomer(email, password);
+    setBusy(false);
+    if (!res.ok) {
+      if ("needsConfirmation" in res && res.needsConfirmation) setNotice(res.error);
+      else setError(res.error);
       return;
     }
-    const res = signIn({ email, password, role });
-    if (!res.ok) return setError(res.error);
-    setUser(res.user, remember);
-    navigate({ to: dashboardPathFor(role), replace: true });
+    navigate({ to: "/customer", replace: true });
   };
 
   return (
@@ -154,7 +147,10 @@ function AuthPage() {
               role="tab"
               aria-selected={mode === "login"}
               className={`auth-tab${mode === "login" ? " active" : ""}`}
-              onClick={() => { setMode("login"); setError(""); }}
+              onClick={() => {
+                setMode("login");
+                setError("");
+              }}
             >
               <i className="fas fa-right-to-bracket" /> Login
             </button>
@@ -163,19 +159,35 @@ function AuthPage() {
               role="tab"
               aria-selected={mode === "signup"}
               className={`auth-tab${mode === "signup" ? " active" : ""}`}
-              onClick={() => { setMode("signup"); setError(""); }}
+              onClick={() => {
+                setMode("signup");
+                setError("");
+              }}
             >
-              <i className="fas fa-user-plus" /> Create {role === "provider" ? "Provider" : "Customer"} Account
+              <i className="fas fa-user-plus" /> Create Customer Account
             </button>
           </div>
         )}
 
         <form onSubmit={onSubmit}>
-          {mode === "signup" && (
-            <div className="field">
-              <label htmlFor="cc-name">Full Name</label>
-              <input id="cc-name" value={name} required onChange={(e) => setName(e.target.value)} placeholder="Ada Okoye" />
-            </div>
+          {mode === "signup" && role === "customer" && (
+            <>
+              <div className="field">
+                <label htmlFor="cc-name">Full Name</label>
+                <input id="cc-name" value={name} required onChange={(e) => setName(e.target.value)} placeholder="Ada Okoye" />
+              </div>
+              <div className="field">
+                <label htmlFor="cc-phone">Phone number</label>
+                <input
+                  id="cc-phone"
+                  value={phone}
+                  required
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="08012345678"
+                  autoComplete="tel"
+                />
+              </div>
+            </>
           )}
           <div className="field">
             <label htmlFor="cc-email">Email</label>
@@ -212,7 +224,9 @@ function AuthPage() {
             </div>
             {mode === "signup" && password.length > 0 && (
               <div className="pw-meter" aria-live="polite">
-                <div className="pw-bar"><span style={{ width: `${(score / 5) * 100}%` }} data-score={score} /></div>
+                <div className="pw-bar">
+                  <span style={{ width: `${(score / 5) * 100}%` }} data-score={score} />
+                </div>
                 <ul className="pw-rules">
                   <li className={checks.length ? "ok" : ""}>8+ characters</li>
                   <li className={checks.upper ? "ok" : ""}>Uppercase</li>
@@ -225,10 +239,7 @@ function AuthPage() {
           </div>
 
           <div className="auth-row">
-            <label className="remember">
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-              Remember me
-            </label>
+            <span />
             <Link to="/forgot-password" search={{ role }} className="auth-inline-link">
               Forgot Password?
             </Link>
@@ -263,7 +274,15 @@ function AuthPage() {
           )}
 
           <button className="btn btn-primary" type="submit" disabled={busy}>
-            {busy ? <><i className="fas fa-spinner fa-spin" /> Signing in…</> : mode === "signup" ? "Create Account" : "Log In"}
+            {busy ? (
+              <>
+                <i className="fas fa-spinner fa-spin" /> Signing in…
+              </>
+            ) : mode === "signup" && role === "customer" ? (
+              "Create Account"
+            ) : (
+              "Log In"
+            )}
           </button>
           {role === "customer" && mode === "login" && (
             <button
@@ -282,6 +301,12 @@ function AuthPage() {
             </button>
           )}
         </form>
+
+        {role === "provider" && (
+          <div className="auth-alt">
+            <Link to="/become-provider">Apply to become a provider</Link>
+          </div>
+        )}
 
         <div className="auth-alt">
           <Link to="/">← Back to home</Link>
