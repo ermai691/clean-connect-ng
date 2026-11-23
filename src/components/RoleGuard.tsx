@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { dashboardPathFor, getUser, type Role, type User } from "@/lib/auth";
+import { dashboardPathFor, type Role, type User } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { currentCustomer } from "@/lib/customer-auth";
 import { currentAdmin } from "@/lib/admin-auth";
+import { currentProvider } from "@/lib/provider-auth";
 
 /**
  * Route guard.
- * - Admin routes are verified against the real backend session + admin role.
- * - Customer/provider routes keep the existing client session.
+ * Admin, customer, and provider routes are verified against the Supabase session
+ * and the matching role. localStorage alone is never enough.
  */
 export function RoleGuard({ role, children }: { role: Role; children: ReactNode }) {
   const navigate = useNavigate();
@@ -29,7 +30,14 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
           setState({ ready: true, user: { name: admin.name, email: admin.email, role: "admin" }, denied: false });
           return;
         }
-        const other = getUser();
+        const customer = await currentCustomer();
+        const provider = customer ? null : await currentProvider();
+        if (!active) return;
+        const other = customer
+          ? { name: "Customer", email: customer.email, role: "customer" as const }
+          : provider
+            ? { name: provider.name, email: provider.email, role: "provider" as const }
+            : null;
         if (other) {
           setState({ ready: true, user: other, denied: true });
           return;
@@ -48,10 +56,11 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
         return;
       }
 
-      const user = getUser();
+      const provider = await currentProvider();
       if (!active) return;
+      const user = provider ? { name: provider.name, email: provider.email, role: "provider" as const } : null;
       setState({ ready: true, user, denied: false });
-      if (!user) navigate({ to: "/auth/$role", params: { role }, replace: true });
+      if (!user) navigate({ to: "/auth/$role", params: { role: "provider" }, replace: true });
     };
 
     void sync();
@@ -88,9 +97,6 @@ export function RoleGuard({ role, children }: { role: Role; children: ReactNode 
           <Link to={dashboardPathFor(signedInRole)} className="btn btn-primary">
             Go to my dashboard
           </Link>
-          <div className="auth-alt">
-            <Link to="/auth/$role" params={{ role: "admin" }}>Administrator login</Link>
-          </div>
         </div>
       </div>
     );
