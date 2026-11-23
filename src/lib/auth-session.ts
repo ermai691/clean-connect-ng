@@ -5,45 +5,63 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+export type AuthLinkResult = {
+  session: boolean;
+  /** signup | recovery | magiclink | invite | email_change | null */
+  type: string | null;
+  error: string | null;
+};
+
+function readHashParams() {
+  if (typeof window === "undefined") return new URLSearchParams();
+  return new URLSearchParams(window.location.hash.replace(/^#/, ""));
+}
+
 /**
  * Reads tokens from the current URL (hash or ?code=) and establishes a session.
- * Safe to call on any page load. Cleans the URL afterwards.
- *
- * Returns true if a session is now active.
+ * Cleans the URL afterwards. Safe to call on any page.
  */
-export async function establishSessionFromUrl(): Promise<boolean> {
-  if (typeof window === "undefined") return false;
+export async function consumeAuthLink(): Promise<AuthLinkResult> {
+  if (typeof window === "undefined") return { session: false, type: null, error: null };
 
   const url = new URL(window.location.href);
+  const hashParams = readHashParams();
+  const hashType = hashParams.get("type");
+  const hashError = hashParams.get("error_description") || hashParams.get("error");
 
-  // PKCE: ?code=...
+  if (hashError && !hashParams.get("access_token")) {
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+    return { session: false, type: hashType, error: decodeURIComponent(hashError.replace(/\+/g, " ")) };
+  }
+
   const code = url.searchParams.get("code");
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     url.searchParams.delete("code");
-    // Also drop common noise params
     url.searchParams.delete("type");
-    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
-    if (!error && data.session) return true;
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+    if (!error && data.session) return { session: true, type: hashType, error: null };
+    return { session: false, type: hashType, error: error?.message ?? "Could not complete the email link." };
   }
 
-  // Implicit / older flow: #access_token=...&type=signup|recovery|...
-  const hash = window.location.hash?.replace(/^#/, "") ?? "";
-  if (hash.includes("access_token")) {
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token") ?? "";
-    if (accessToken) {
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-      window.history.replaceState({}, document.title, url.pathname + url.search);
-      if (!error && data.session) return true;
-    }
+  const accessToken = hashParams.get("access_token");
+  const refreshToken = hashParams.get("refresh_token") ?? "";
+  if (accessToken) {
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+    if (!error && data.session) return { session: true, type: hashType, error: null };
+    return { session: false, type: hashType, error: error?.message ?? "This email link is invalid or expired." };
   }
 
-  // Already have a session
   const { data } = await supabase.auth.getSession();
-  return !!data.session;
+  return { session: !!data.session, type: null, error: null };
+}
+
+/** True when a Supabase session exists after processing any tokens in the URL. */
+export async function establishSessionFromUrl(): Promise<boolean> {
+  const result = await consumeAuthLink();
+  return result.session;
 }
